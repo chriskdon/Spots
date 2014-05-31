@@ -1,9 +1,11 @@
 package ca.brocku.dotscanvas.app;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -27,6 +29,11 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         surfaceHolder.addCallback(this);
 
         mContext =  context;
+
+        //Clear any saved game state
+        SharedPreferences.Editor editor =
+                mContext.getSharedPreferences(GameThread.GAME_STATE_FILENAME, Context.MODE_PRIVATE).edit();
+        editor.clear().commit();
     }
 
     /**
@@ -43,6 +50,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
         Log.e("surfaceCreated", "started");
         thread = new GameThread(surfaceHolder, mContext);
+        thread.restoreState();
         thread.setRunning(true);
         thread.start();
         Log.e("surfaceCreated", "finished");
@@ -83,6 +91,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
                 e.printStackTrace();
             }
         }
+        thread.saveState();
         Log.e("surfaceDestroyed", "finished");
     }
 
@@ -98,20 +107,30 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         }
     }
 
+    public GameThread getGameThread() {
+        return thread;
+    }
 
     /**
      * This is the Thread which draws to the Canvas.
      */
     class GameThread extends Thread {
+        //Strings used for storing the game state
+        private static final String GAME_STATE_FILENAME = "GAME_STATE";
+        private static final String GAME_COUNTER = "GAME_COUNTER";
+
         private SurfaceHolder mSurfaceHolder;
         private Context mContext;
 
         private boolean mRun;  //whether the surface has been created & is ready to draw
         private boolean mBlock; //whether the surface has lost focus
 
-        private String TEMP_UUID = UUID.randomUUID().toString();
+        private boolean isGameOver; //has the game completed
+        private boolean isQuitRequested; //is the user quitting the game
 
         private int counter = 0;
+
+        private String TEMP_UUID = UUID.randomUUID().toString();
 
         public GameThread(SurfaceHolder surfaceHolder, Context context) {
             mSurfaceHolder = surfaceHolder;
@@ -119,6 +138,9 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
             mRun = false;
             mBlock = false;
+
+            isGameOver = false;
+            isQuitRequested = false;
         }
 
         @Override
@@ -183,6 +205,60 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             synchronized (mSurfaceHolder) {
                 mBlock = false;
                 mSurfaceHolder.notifyAll();
+            }
+        }
+
+        public void saveState() {
+            Log.e("THREAD", "saveState");
+            synchronized (mSurfaceHolder) {
+                if(!isGameOver && !isQuitRequested) {
+                    SharedPreferences.Editor editor =
+                            mContext.getSharedPreferences(GAME_STATE_FILENAME, Context.MODE_PRIVATE).edit();
+
+                    //List of variables to store
+                    //TODO: save all values
+                    editor
+                            .putInt(GAME_COUNTER, counter)
+                            .commit();
+                }
+            }
+        }
+
+        public void restoreState() {
+            Log.e("THREAD", "restoreState");
+            synchronized (mSurfaceHolder) {
+                SharedPreferences sharedPreferences =
+                        mContext.getSharedPreferences(GAME_STATE_FILENAME, Context.MODE_PRIVATE);
+
+                //List of variables to restore
+                counter = sharedPreferences.getInt(GAME_COUNTER, 0);
+                //TODO: restore all values
+
+                //Clear the loaded state
+                clearState();
+            }
+        }
+
+        public void clearState() {
+            Log.e("THREAD", "clearState");
+            synchronized (mSurfaceHolder) {
+                SharedPreferences.Editor editor =
+                        mContext.getSharedPreferences(GAME_STATE_FILENAME, Context.MODE_PRIVATE).edit();
+
+                //Clear the saved game state
+                editor.clear().commit();
+            }
+        }
+
+        public boolean isGameOver() {
+            synchronized (mSurfaceHolder) {
+                return isGameOver;
+            }
+        }
+
+        public void setQuitRequested(boolean isQuitRequested) {
+            synchronized (mSurfaceHolder) {
+                this.isQuitRequested = isQuitRequested;
             }
         }
 
