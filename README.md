@@ -12,4 +12,4 @@ Summer Android Game
 
 
 #### Scoring ####
-n^2 points for clearing n dots
+n<sup>2</sup> points for clearing n dots
