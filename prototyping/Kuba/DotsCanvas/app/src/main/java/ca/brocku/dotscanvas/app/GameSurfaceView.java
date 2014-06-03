@@ -5,8 +5,6 @@ import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.Bundle;
-import android.text.method.Touch;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -14,12 +12,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
-import java.util.UUID;
-
-/**
- * @author Jakub Subczynski
- * @date May 23, 2014
- */
 public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener {
     private GameThread thread; //Handles drawing; initialized in surfaceCreated() callback
     private Context mContext;
@@ -127,7 +119,6 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     class GameThread extends Thread {
         //Strings used for storing the game state
         private static final String GAME_STATE_FILENAME = "GAME_STATE";
-        private static final String GAME_COUNTER = "GAME_COUNTER";
 
         private static final int GRID_LENGTH = 6;
         private static final int NUMBER_OF_DOTS = 36;
@@ -137,7 +128,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         private SurfaceHolder mSurfaceHolder;
         private int mCanvasHeight = 1;
         private int mCanvasWidth = 1;
-        private int mCanvasSquareLength = 1; //the smaller of the height and width
+        private float mCanvasLength = 1; //the smaller of the height and width
         float mPixelsPerDotRegion = 1;
         float mDotRadius = 1;
 
@@ -147,8 +138,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         private boolean isGameOver; //has the game completed
         private boolean isQuitRequested; //is the user quitting the game
 
-        private boolean[][] dotGrid;
-        private float mCanvasLength;
+        private Dot[][] mDotGrid;
+
 
         public GameThread(SurfaceHolder surfaceHolder, Context context) {
             mSurfaceHolder = surfaceHolder;
@@ -164,11 +155,12 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         }
 
         private void initializeGrid() {
-            dotGrid = new boolean[GRID_LENGTH][GRID_LENGTH];
+            mDotGrid = new Dot[GRID_LENGTH][GRID_LENGTH];
 
             for(int row=0; row<GRID_LENGTH; row++) {
                 for(int col=0; col<GRID_LENGTH; col++) {
-                    dotGrid[row][col] = true;
+                    mDotGrid[row][col] = new Dot(row*GRID_LENGTH + (col+1));
+                    mDotGrid[row][col].setVisible(true);
                 }
             }
         }
@@ -310,8 +302,17 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
                 mPixelsPerDotRegion = mCanvasLength/GRID_LENGTH;
                 mDotRadius = mPixelsPerDotRegion*2.0f/3.0f /2;
+
+                for(int row=0; row<GRID_LENGTH; row++) {
+                    for(int col=0; col<GRID_LENGTH; col++) {
+                        mDotGrid[row][col].setCenterX(
+                                (float) ((float)row*mPixelsPerDotRegion + mPixelsPerDotRegion/2.0));
+                        mDotGrid[row][col].setCenterY(
+                                (float) ((float)col*mPixelsPerDotRegion + mPixelsPerDotRegion/2.0));
+                    }
+                }
             }
-            Log.i("SurfaceSize", "L: " + String.valueOf(mCanvasLength) + "; H: " + String.valueOf(mCanvasHeight) + "; W: " + String.valueOf(mCanvasWidth));
+//            Log.i("SurfaceSize", "L: " + String.valueOf(mCanvasLength) + "; H: " + String.valueOf(mCanvasHeight) + "; W: " + String.valueOf(mCanvasWidth));
         }
 
         public boolean onTouch(MotionEvent motionEvent) {
@@ -339,15 +340,13 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             Log.i("Thread", "onTouchDown()");
             for(int row=0; row<GRID_LENGTH; row++) {
                 for(int col=0; col<GRID_LENGTH; col++) {
-                    if(dotGrid[row][col]) {
-                        float circleX = (float) ((float)row*mPixelsPerDotRegion + mPixelsPerDotRegion/2.0);
-                        float circleY = (float) ((float)col*mPixelsPerDotRegion + mPixelsPerDotRegion/2.0);
-
-                        float diffX = Math.abs(x - circleX);
-                        float diffY = Math.abs(y - circleY);
+                    if(mDotGrid[row][col].isVisible()) {
+                        float diffX = Math.abs(x - mDotGrid[row][col].getCenterX());
+                        float diffY = Math.abs(y - mDotGrid[row][col].getCenterY());
 
                         if(diffX <= mDotRadius && diffY <= mDotRadius) {
-                            dotGrid[row][col] = false;
+                            //TODO animate dot
+                            mDotGrid[row][col].setVisible(false);
                         }
                     }
                 }
@@ -372,10 +371,11 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             paint.setColor(Color.RED);
             for(int row=0; row<GRID_LENGTH; row++) {
                 for(int col=0; col<GRID_LENGTH; col++) {
-                    if(dotGrid[row][col]) {
-                        float cx = (float) ((float)row*mPixelsPerDotRegion + mPixelsPerDotRegion/2.0);
-                        float cy = (float) ((float)col*mPixelsPerDotRegion + mPixelsPerDotRegion/2.0);
-                        canvas.drawCircle(cx, cy, mDotRadius, paint);
+                    if(mDotGrid[row][col].isVisible()) {
+                        canvas.drawCircle(
+                                mDotGrid[row][col].getCenterX(),
+                                mDotGrid[row][col].getCenterY(),
+                                mDotRadius, paint);
                     }
                 }
             }
