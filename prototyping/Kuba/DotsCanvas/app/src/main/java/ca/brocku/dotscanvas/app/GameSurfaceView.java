@@ -12,6 +12,8 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
+import java.util.Stack;
+
 public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener {
     private GameThread thread; //Handles drawing; initialized in surfaceCreated() callback
     private Context mContext;
@@ -139,7 +141,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         private boolean isQuitRequested; //is the user quitting the game
 
         private Dot[][] mDotGrid;
-
+        private Stack<Dot> mDotChain;
+        private boolean isInteracting; //interaction = actions from touch down to touch up
 
         public GameThread(SurfaceHolder surfaceHolder, Context context) {
             mSurfaceHolder = surfaceHolder;
@@ -152,6 +155,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             isQuitRequested = false;
 
             initializeGrid();
+            mDotChain = new Stack<Dot>();
+            isInteracting = false;
         }
 
         private void initializeGrid() {
@@ -330,6 +335,9 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
                     case MotionEvent.ACTION_MOVE:
                         onTouchMove(x, y, motionEvent);
                         break;
+                    case MotionEvent.ACTION_OUTSIDE:
+                        onTouchOutside(x, y, motionEvent);
+                        break;
                 }
 
                 return true;
@@ -345,22 +353,31 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
                         float diffY = Math.abs(y - mDotGrid[row][col].getCenterY());
 
                         if(diffX <= mDotRadius && diffY <= mDotRadius) {
+                            mDotChain.push(mDotGrid[row][col]);
                             //TODO animate dot
-                            mDotGrid[row][col].setVisible(false);
                         }
                     }
                 }
             }
+            isInteracting = true;
         }
 
         private void onTouchUp(float x, float y, MotionEvent motionEvent) {
             Log.i("Thread", "onTouchUp()");
 
+            for(Dot dot: mDotChain) {
+                dot.setVisible(false);
+            }
+            isInteracting = false;
         }
 
         private void onTouchMove(float x, float y, MotionEvent motionEvent) {
             Log.i("Thread", "onTouchMove()");
 
+        }
+
+        private void onTouchOutside(float x, float y, MotionEvent motionEvent) {
+            Log.i("Thread", "onTouchOutside()");
         }
 
         private void doDraw(Canvas canvas) {
