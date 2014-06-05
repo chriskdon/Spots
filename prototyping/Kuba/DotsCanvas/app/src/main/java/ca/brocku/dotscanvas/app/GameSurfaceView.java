@@ -12,6 +12,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
+import java.util.Iterator;
 import java.util.Stack;
 
 import ca.brocku.dotscanvas.app.gameboard.Dot;
@@ -134,8 +135,9 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         private int mCanvasHeight = 1;
         private int mCanvasWidth = 1;
         private float mCanvasLength = 1; //the smaller of the height and width
-        float mPixelsPerDotRegion = 1;
-        float mDotRadius = 1;
+        private float mPixelsPerDotRegion = 1;
+        private float mDotRadius = 1;
+        private float mMaxLineLength = 1;
 
         private boolean mRun;  //whether the surface has been created & is ready to draw
         private boolean mBlock; //whether the surface has lost focus
@@ -146,6 +148,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         private DotGrid mDotGrid;
         private Stack<Dot> mDotChain;
         private boolean isInteracting; //interaction = actions from touch down to touch up
+        private float chainingLineX;
+        private float chainingLineY;
 
         public GameThread(SurfaceHolder surfaceHolder, Context context) {
             mSurfaceHolder = surfaceHolder;
@@ -166,6 +170,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
             mDotChain = new Stack<Dot>();
             isInteracting = false;
+            chainingLineX = 0;
+            chainingLineY = 0;
         }
 
         @Override
@@ -305,6 +311,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
                 mPixelsPerDotRegion = mCanvasLength/GRID_LENGTH;
                 mDotRadius = mPixelsPerDotRegion*2.0f/3.0f /2;
+                mMaxLineLength = (float) (1.5*mPixelsPerDotRegion);
 
                 for(Dot dot: mDotGrid) {
                     dot.setCenterX(
@@ -342,6 +349,9 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
         private void onTouchDown(float x, float y, MotionEvent motionEvent) {
             Log.i("Thread", "onTouchDown()");
+            chainingLineX = x;
+            chainingLineY = y;
+
             for(Dot dot: mDotGrid) {
                 if(dot.isVisible() && isTouchWithinDot(x, y, dot)) {
                     mDotChain.push(dot);
@@ -368,6 +378,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         private void onTouchMove(float x, float y, MotionEvent motionEvent) {
             Log.i("Thread", "onTouchMove()");
 
+            setInteractingCoordinates(x, y);
+
             if(!mDotChain.isEmpty()) {
                 for(Dot dot: mDotGrid) {
                     if(dot.isVisible() && isTouchWithinDot(x, y, dot)) {
@@ -383,6 +395,46 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
         private void onTouchOutside(float x, float y, MotionEvent motionEvent) {
             Log.i("Thread", "onTouchOutside()");
+            mDotChain.clear();
+            isInteracting = false;
+        }
+
+        private void setInteractingCoordinates(float endX, float endY) {
+            if(!mDotChain.isEmpty()) {
+                Dot lastDot = mDotChain.peek();
+                float startX = lastDot.getCenterX();
+                float startY = lastDot.getCenterY();
+
+                //Lengths from the start to the end coordinates
+                float diffX = Math.abs(startX- endX);
+                float diffY = Math.abs(startY- endY);
+
+                if(diffX > mMaxLineLength || diffY > mMaxLineLength) { //if a length exceeds the max allowed
+
+                    //The factor represents how much larger the larger distance of the two is than the max length allowed
+                    float factor = (diffX >= diffY ? diffX/mMaxLineLength : diffY/mMaxLineLength);
+
+                    //Trim each axis' distance by the factor
+                    diffX /= factor;
+                    diffY /= factor;
+
+                    //Adjust ending coordinates
+                    if(startX- endX > 0) {
+                        chainingLineX = startX-diffX;
+                    } else if(startX- endX < 0) {
+                        chainingLineX = startX+diffX;
+                    }
+                    if(startY- endY > 0) {
+                        chainingLineY = startY-diffY;
+                    } else if(startY- endY < 0) {
+                        chainingLineY = startY+diffY;
+                    }
+
+                } else { //line length within limit, set values
+                    chainingLineX = endX;
+                    chainingLineY = endY;
+                }
+            }
         }
 
         private boolean isTouchWithinDot(float x, float y, Dot dot) {
@@ -405,16 +457,46 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             return false;
         }
 
+
         private void doDraw(Canvas canvas) {
             canvas.drawColor(Color.WHITE); //clear the screen
 
-            //Draw dots
             Paint paint = new Paint();
             paint.setColor(Color.RED);
+            paint.setStrokeWidth(15);
+
+            //Draw dots
             for(Dot dot: mDotGrid) {
                 if(dot.isVisible()) {
                     canvas.drawCircle(dot.getCenterX(), dot.getCenterY(), mDotRadius, paint);
                 }
+            }
+
+            //Draw lines
+            if(isInteracting) {
+                //Draw lines between chained dots
+                {
+                    Iterator<Dot> iterator = mDotChain.iterator();
+                    if(iterator.hasNext()) {
+                        Dot startDot = iterator.next();
+                        float startX = startDot.getCenterX();
+                        float startY = startDot.getCenterY();
+
+                        while(iterator.hasNext()) {
+                            Dot endDot = iterator.next();
+
+                            canvas.drawLine(startX, startY, endDot.getCenterX(), endDot.getCenterY(), paint);
+                            startX = endDot.getCenterX();
+                            startY = endDot.getCenterY();
+                        }
+                    }
+                }
+
+                //Draw unconnected line
+                Dot lastDot = mDotChain.peek();
+                float startX = lastDot.getCenterX();
+                float startY = lastDot.getCenterY();
+                canvas.drawLine(startX, startY, chainingLineX, chainingLineY, paint);
             }
         }
     }
