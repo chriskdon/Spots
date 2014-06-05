@@ -14,6 +14,9 @@ import android.view.View;
 
 import java.util.Stack;
 
+import ca.brocku.dotscanvas.app.gameboard.Dot;
+import ca.brocku.dotscanvas.app.gameboard.DotGrid;
+
 public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener {
     private GameThread thread; //Handles drawing; initialized in surfaceCreated() callback
     private Context mContext;
@@ -140,7 +143,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         private boolean isGameOver; //has the game completed
         private boolean isQuitRequested; //is the user quitting the game
 
-        private Dot[][] mDotGrid;
+        private DotGrid mDotGrid;
         private Stack<Dot> mDotChain;
         private boolean isInteracting; //interaction = actions from touch down to touch up
 
@@ -154,20 +157,15 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             isGameOver = false;
             isQuitRequested = false;
 
-            initializeGrid();
+            mDotGrid = new DotGrid(GRID_LENGTH);
+
+            //TODO remove when dots appear randomly
+            for(Dot dot: mDotGrid) {
+                dot.setVisible(true);
+            }
+
             mDotChain = new Stack<Dot>();
             isInteracting = false;
-        }
-
-        private void initializeGrid() {
-            mDotGrid = new Dot[GRID_LENGTH][GRID_LENGTH];
-
-            for(int row=0; row<GRID_LENGTH; row++) {
-                for(int col=0; col<GRID_LENGTH; col++) {
-                    mDotGrid[row][col] = new Dot(row*GRID_LENGTH + (col+1));
-                    mDotGrid[row][col].setVisible(true);
-                }
-            }
         }
 
         @Override
@@ -292,7 +290,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
         /**
          * Called when the Surface size changes to store the updated canvas dimensions and related
-         * measurements
+         * measurements.
          *
          * @see ca.brocku.dotscanvas.app.GameSurfaceView#surfaceChanged
          *
@@ -308,13 +306,11 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
                 mPixelsPerDotRegion = mCanvasLength/GRID_LENGTH;
                 mDotRadius = mPixelsPerDotRegion*2.0f/3.0f /2;
 
-                for(int row=0; row<GRID_LENGTH; row++) {
-                    for(int col=0; col<GRID_LENGTH; col++) {
-                        mDotGrid[row][col].setCenterX(
-                                (float) ((float)row*mPixelsPerDotRegion + mPixelsPerDotRegion/2.0));
-                        mDotGrid[row][col].setCenterY(
-                                (float) ((float)col*mPixelsPerDotRegion + mPixelsPerDotRegion/2.0));
-                    }
+                for(Dot dot: mDotGrid) {
+                    dot.setCenterX(
+                            (float) ((float) dot.getRow() * mPixelsPerDotRegion + mPixelsPerDotRegion / 2.0));
+                    dot.setCenterY(
+                            (float) ((float) dot.getCol() * mPixelsPerDotRegion + mPixelsPerDotRegion / 2.0));
                 }
             }
 //            Log.i("SurfaceSize", "L: " + String.valueOf(mCanvasLength) + "; H: " + String.valueOf(mCanvasHeight) + "; W: " + String.valueOf(mCanvasWidth));
@@ -346,38 +342,67 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
         private void onTouchDown(float x, float y, MotionEvent motionEvent) {
             Log.i("Thread", "onTouchDown()");
-            for(int row=0; row<GRID_LENGTH; row++) {
-                for(int col=0; col<GRID_LENGTH; col++) {
-                    if(mDotGrid[row][col].isVisible()) {
-                        float diffX = Math.abs(x - mDotGrid[row][col].getCenterX());
-                        float diffY = Math.abs(y - mDotGrid[row][col].getCenterY());
-
-                        if(diffX <= mDotRadius && diffY <= mDotRadius) {
-                            mDotChain.push(mDotGrid[row][col]);
-                            //TODO animate dot
-                        }
-                    }
+            for(Dot dot: mDotGrid) {
+                if(dot.isVisible() && isTouchWithinDot(x, y, dot)) {
+                    mDotChain.push(dot);
+                    //TODO animate dot
+                    break;
                 }
             }
+
             isInteracting = true;
         }
 
         private void onTouchUp(float x, float y, MotionEvent motionEvent) {
             Log.i("Thread", "onTouchUp()");
 
+            //Hide all of the dots in the dot chain
             for(Dot dot: mDotChain) {
                 dot.setVisible(false);
             }
+            mDotChain.clear();
+
             isInteracting = false;
         }
 
         private void onTouchMove(float x, float y, MotionEvent motionEvent) {
             Log.i("Thread", "onTouchMove()");
 
+            if(!mDotChain.isEmpty()) {
+                for(Dot dot: mDotGrid) {
+                    if(dot.isVisible() && isTouchWithinDot(x, y, dot)) {
+                        if(!mDotChain.contains(dot) && isDotAdjacent(dot)) {
+                            mDotChain.push(dot);
+                            //TODO animate dot
+                        }
+                        break;
+                    }
+                }
+            }
         }
 
         private void onTouchOutside(float x, float y, MotionEvent motionEvent) {
             Log.i("Thread", "onTouchOutside()");
+        }
+
+        private boolean isTouchWithinDot(float x, float y, Dot dot) {
+            float diffX = Math.abs(x - dot.getCenterX());
+            float diffY = Math.abs(y - dot.getCenterY());
+
+            return (diffX <= mDotRadius && diffY <= mDotRadius) ? true : false;
+        }
+
+        private boolean isDotAdjacent(Dot dot) {
+            if(!mDotChain.isEmpty()) {
+                Dot lastDot = mDotChain.peek();
+
+                //Check if dot is adjacent to the last selected dot
+                if(Math.abs(dot.getRow() - lastDot.getRow()) <= 1 && Math.abs(dot.getCol()-lastDot.getCol()) <= 1) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void doDraw(Canvas canvas) {
@@ -386,14 +411,9 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             //Draw dots
             Paint paint = new Paint();
             paint.setColor(Color.RED);
-            for(int row=0; row<GRID_LENGTH; row++) {
-                for(int col=0; col<GRID_LENGTH; col++) {
-                    if(mDotGrid[row][col].isVisible()) {
-                        canvas.drawCircle(
-                                mDotGrid[row][col].getCenterX(),
-                                mDotGrid[row][col].getCenterY(),
-                                mDotRadius, paint);
-                    }
+            for(Dot dot: mDotGrid) {
+                if(dot.isVisible()) {
+                    canvas.drawCircle(dot.getCenterX(), dot.getCenterY(), mDotRadius, paint);
                 }
             }
         }
