@@ -5,9 +5,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 public class MainActivity extends ActionBarActivity {
     private GameSurfaceView mGameSurfaceView;
+    private TextView mScoreTextView, mMissedTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -16,6 +18,11 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         mGameSurfaceView = (GameSurfaceView) findViewById(R.id.game_surfaceView);
+        mScoreTextView = (TextView) findViewById(R.id.score_textView);
+        mMissedTextView = (TextView) findViewById(R.id.missed_textView);
+
+        mGameSurfaceView.setScoreView(mScoreTextView);
+        mGameSurfaceView.setMissedView(mMissedTextView);
     }
 
     @Override

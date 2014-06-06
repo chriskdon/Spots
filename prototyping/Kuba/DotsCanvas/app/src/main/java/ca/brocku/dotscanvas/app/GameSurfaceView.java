@@ -5,12 +5,16 @@ import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.TextView;
 
 import java.util.Iterator;
 import java.util.Stack;
@@ -21,6 +25,8 @@ import ca.brocku.dotscanvas.app.gameboard.DotGrid;
 public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener {
     private GameThread thread; //Handles drawing; initialized in surfaceCreated() callback
     private Context mContext;
+    private TextView mScoreView;
+    private TextView mMissedView;
 
     public GameSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -53,7 +59,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
         Log.e("Thread", "surfaceCreated()");
-        thread = new GameThread(surfaceHolder, mContext);
+        thread = new GameThread(surfaceHolder, mContext, new ScoreViewHandler(), new MissedViewHandler());
         thread.restoreState();
         thread.setRunning(true);
         thread.start();
@@ -119,19 +125,31 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         return thread;
     }
 
+    public void setScoreView(TextView scoreView) {
+        this.mScoreView = scoreView;
+    }
+
+    public void setMissedView(TextView missedView) {
+        this.mMissedView = missedView;
+    }
+
     /**
      * This is the Thread which draws to the Canvas.
      */
     class GameThread extends Thread {
         //Strings used for storing the game state
-        private static final String GAME_STATE_FILENAME = "GAME_STATE";
+        public static final String GAME_STATE_FILENAME = "GAME_STATE";
+        public static final String GAME_SCORE = "GAME_SCORE";
+        public static final String GAME_MISSED = "GAME_MISSED";
 
         private static final int GRID_LENGTH = 6;
         private static final int NUMBER_OF_DOTS = 36;
         private static final int DOTS_TO_MISS = 15;
 
-        private Context mContext;
         private SurfaceHolder mSurfaceHolder;
+        private Context mContext;
+        private ScoreViewHandler mScoreViewHandler;
+
         private int mCanvasHeight = 1;
         private int mCanvasWidth = 1;
         private float mCanvasLength = 1; //the smaller of the height and width
@@ -142,24 +160,28 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         private boolean mRun;  //whether the surface has been created & is ready to draw
         private boolean mBlock; //whether the surface has lost focus
 
-        private boolean isGameOver; //has the game completed
-        private boolean isQuitRequested; //is the user quitting the game
+        private boolean mGameOver; //has the game completed
+        private boolean mQuitRequested; //is the user quitting the game
 
         private DotGrid mDotGrid;
         private Stack<Dot> mDotChain;
-        private boolean isInteracting; //interaction = actions from touch down to touch up
-        private float chainingLineX;
-        private float chainingLineY;
+        private boolean mInteracting; //interaction = actions from touch down to touch up
+        private float mChainingLineX;
+        private float mChainingLineY;
 
-        public GameThread(SurfaceHolder surfaceHolder, Context context) {
+        private int mScore;
+        private int mMissedDots;
+
+        public GameThread(SurfaceHolder surfaceHolder, Context context, ScoreViewHandler scoreViewHandler, MissedViewHandler missedViewHandler) {
             mSurfaceHolder = surfaceHolder;
             mContext = context;
+            mScoreViewHandler = scoreViewHandler;
 
             mRun = false;
             mBlock = false;
 
-            isGameOver = false;
-            isQuitRequested = false;
+            mGameOver = false;
+            mQuitRequested = false;
 
             mDotGrid = new DotGrid(GRID_LENGTH);
 
@@ -169,9 +191,12 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             }
 
             mDotChain = new Stack<Dot>();
-            isInteracting = false;
-            chainingLineX = 0;
-            chainingLineY = 0;
+            mInteracting = false;
+            mChainingLineX = 0;
+            mChainingLineY = 0;
+
+            mScore = 0;
+            mMissedDots = 0;
         }
 
         @Override
@@ -181,7 +206,9 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
                 try {
                     c = mSurfaceHolder.lockCanvas();
                     synchronized (mSurfaceHolder) {
-                        /** UPDATE STATES HERE **/
+
+                        /** UPDATE STATE HERE **/
+
                         if(c != null) {
                             doDraw(c);
                         }
@@ -243,7 +270,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         public void saveState() {
             Log.e("THREAD", "saveState");
             synchronized (mSurfaceHolder) {
-                if(!isGameOver && !isQuitRequested) {
+                if(!mGameOver && !mQuitRequested) {
                     SharedPreferences.Editor editor =
                             mContext.getSharedPreferences(GAME_STATE_FILENAME, Context.MODE_PRIVATE).edit();
 
@@ -284,13 +311,13 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
         public boolean isGameOver() {
             synchronized (mSurfaceHolder) {
-                return isGameOver;
+                return mGameOver;
             }
         }
 
         public void setQuitRequested(boolean isQuitRequested) {
             synchronized (mSurfaceHolder) {
-                this.isQuitRequested = isQuitRequested;
+                this.mQuitRequested = isQuitRequested;
             }
         }
 
@@ -349,8 +376,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
         private void onTouchDown(float x, float y, MotionEvent motionEvent) {
             Log.i("Thread", "onTouchDown()");
-            chainingLineX = x;
-            chainingLineY = y;
+            mChainingLineX = x;
+            mChainingLineY = y;
 
             for(Dot dot: mDotGrid) {
                 if(dot.isVisible() && isTouchWithinDot(x, y, dot)) {
@@ -360,11 +387,13 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
                 }
             }
 
-            isInteracting = true;
+            mInteracting = true;
         }
 
         private void onTouchUp(float x, float y, MotionEvent motionEvent) {
             Log.i("Thread", "onTouchUp()");
+
+            updateScore();
 
             //Hide all of the dots in the dot chain
             for(Dot dot: mDotChain) {
@@ -372,7 +401,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             }
             mDotChain.clear();
 
-            isInteracting = false;
+            mInteracting = false;
         }
 
         private void onTouchMove(float x, float y, MotionEvent motionEvent) {
@@ -396,7 +425,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         private void onTouchOutside(float x, float y, MotionEvent motionEvent) {
             Log.i("Thread", "onTouchOutside()");
             mDotChain.clear();
-            isInteracting = false;
+            mInteracting = false;
         }
 
         private void setInteractingCoordinates(float endX, float endY) {
@@ -420,19 +449,19 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
                     //Adjust ending coordinates
                     if(startX- endX > 0) {
-                        chainingLineX = startX-diffX;
+                        mChainingLineX = startX-diffX;
                     } else if(startX- endX < 0) {
-                        chainingLineX = startX+diffX;
+                        mChainingLineX = startX+diffX;
                     }
                     if(startY- endY > 0) {
-                        chainingLineY = startY-diffY;
+                        mChainingLineY = startY-diffY;
                     } else if(startY- endY < 0) {
-                        chainingLineY = startY+diffY;
+                        mChainingLineY = startY+diffY;
                     }
 
                 } else { //line length within limit, set values
-                    chainingLineX = endX;
-                    chainingLineY = endY;
+                    mChainingLineX = endX;
+                    mChainingLineY = endY;
                 }
             }
         }
@@ -457,6 +486,18 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             return false;
         }
 
+        private void updateScore() {
+            if(!mDotChain.isEmpty()) {
+                mScore += Math.pow(mDotChain.size(), 2);
+            }
+
+            Message message = mScoreViewHandler.obtainMessage();
+            Bundle bundle = new Bundle();
+            bundle.putInt(GAME_SCORE, mScore);
+            message.setData(bundle);
+            mScoreViewHandler.sendMessage(message);
+        }
+
 
         private void doDraw(Canvas canvas) {
             canvas.drawColor(Color.WHITE); //clear the screen
@@ -473,7 +514,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             }
 
             //Draw lines
-            if(isInteracting) {
+            if(mInteracting) {
                 //Draw lines between chained dots
                 {
                     Iterator<Dot> iterator = mDotChain.iterator();
@@ -496,8 +537,24 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
                 Dot lastDot = mDotChain.peek();
                 float startX = lastDot.getCenterX();
                 float startY = lastDot.getCenterY();
-                canvas.drawLine(startX, startY, chainingLineX, chainingLineY, paint);
+                canvas.drawLine(startX, startY, mChainingLineX, mChainingLineY, paint);
             }
+        }
+    }
+
+    private class ScoreViewHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            String score = String.valueOf(msg.getData().getInt(GameThread.GAME_SCORE));
+            mScoreView.setText(score);
+        }
+    }
+
+    private class MissedViewHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            String missed = String.valueOf(msg.getData().getInt(GameThread.GAME_MISSED));
+            mMissedView.setText(missed);
         }
     }
 }
