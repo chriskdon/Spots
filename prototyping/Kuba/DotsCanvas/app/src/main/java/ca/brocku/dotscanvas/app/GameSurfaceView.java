@@ -470,7 +470,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             float diffX = Math.abs(x - dot.getCenterX());
             float diffY = Math.abs(y - dot.getCenterY());
 
-            return (diffX <= mDotRadius && diffY <= mDotRadius) ? true : false;
+            return (diffX <= mDotRadius && diffY <= mDotRadius);
         }
 
         private boolean isDotAdjacent(Dot dot) {
