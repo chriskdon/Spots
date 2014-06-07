@@ -541,7 +541,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
                         break;
                     case INVISIBLE: //TODO make insane algorithm to determine when a dot should appear
                         if(stateDuration > 2000) {
-                            if((int)(Math.random()*750) == 1) {
+                            if((int)(Math.random()*600) == 1) {
                                 dot.setState(DotState.APPEARING);
                             }
                         }
