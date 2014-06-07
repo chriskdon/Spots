@@ -74,7 +74,11 @@ public class Dot {
         return stateStartTime;
     }
 
+    public long getStateDuration() {
+        return System.currentTimeMillis() - stateStartTime;
+    }
+
     public boolean isVisible() {
-        return (state == DotState.VISIBLE);
+        return state == DotState.VISIBLE;
     }
 }

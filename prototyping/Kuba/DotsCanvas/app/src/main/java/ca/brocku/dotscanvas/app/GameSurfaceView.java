@@ -148,6 +148,10 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         private static final int NUMBER_OF_DOTS = 36;
         private static final int DOTS_TO_MISS = 15;
 
+        private static final long DURATION_ANIMATION = 100;
+        private static final long DURATION_VISIBLE = 2000;
+        private int fps = 60;
+
         private SurfaceHolder mSurfaceHolder;
         private Context mContext;
         private ScoreViewHandler mScoreViewHandler;
@@ -174,9 +178,6 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         private int mScore;
         private int mMissedDots;
 
-        private int fps = 60;
-        private int animationDuration = 1000;
-        private ArrayList<Dot> animatedDots = new ArrayList<Dot>();
 
         public GameThread(SurfaceHolder surfaceHolder, Context context, ScoreViewHandler scoreViewHandler, MissedViewHandler missedViewHandler) {
             mSurfaceHolder = surfaceHolder;
@@ -192,9 +193,11 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             mDotGrid = new DotGrid(GRID_LENGTH);
 
             //TODO remove when dots appear randomly
-            for(Dot dot: mDotGrid) {
-                dot.setState(DotState.VISIBLE);
-            }
+//            for(Dot dot: mDotGrid) {
+//                int random = (int) (Math.random()*3);
+//                //if(random == 1) dot.setState(DotState.APPEARING);
+//                dot.setState(DotState.APPEARING);
+//            }
 
             mDotChain = new Stack<Dot>();
             mInteracting = false;
@@ -213,7 +216,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
                     c = mSurfaceHolder.lockCanvas();
                     synchronized (mSurfaceHolder) {
 
-                        /** UPDATE STATE HERE **/
+                        updateState();
 
                         if(c != null) {
                             doDraw(c);
@@ -403,8 +406,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
             //Hide all of the dots in the dot chain
             for(Dot dot: mDotChain) {
-                dot.setState(DotState.INVISIBLE);
-                animatedDots.add(dot);
+                dot.setState(DotState.DISAPPEARING);
             }
             mDotChain.clear();
 
@@ -506,6 +508,36 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             mScoreViewHandler.sendMessage(message);
         }
 
+        private void updateState() {
+            for(Dot dot: mDotGrid) {
+                long stateDuration = dot.getStateDuration();
+
+                switch (dot.getState()) {
+                    case VISIBLE:
+                        if(stateDuration > DURATION_VISIBLE) {
+                            dot.setState(DotState.DISAPPEARING);
+                        }
+                        break;
+                    case DISAPPEARING:
+                        if(stateDuration > DURATION_ANIMATION) {
+                            dot.setState(DotState.INVISIBLE);
+                        }
+                        break;
+                    case INVISIBLE: //TODO make insane algorithm to determine when a dot should appear
+                        if(stateDuration > 2000) {
+                            if((int)(Math.random()*750) == 1) {
+                                dot.setState(DotState.APPEARING);
+                            }
+                        }
+                        break;
+                    case APPEARING:
+                        if(stateDuration > DURATION_ANIMATION) {
+                            dot.setState(DotState.VISIBLE);
+                        }
+                        break;
+                }
+            }
+        }
 
         private void doDraw(Canvas canvas) {
             canvas.drawColor(Color.WHITE); //clear the screen
@@ -516,8 +548,34 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
             //Draw dots
             for(Dot dot: mDotGrid) {
-                if(dot.isVisible()) {
-                    canvas.drawCircle(dot.getCenterX(), dot.getCenterY(), mDotRadius, paint);
+                switch (dot.getState()) {
+                    case VISIBLE:
+                        canvas.drawCircle(dot.getCenterX(), dot.getCenterY(), mDotRadius, paint);
+                        break;
+                    case DISAPPEARING:
+                        //Determine how far into the animation we are
+                        float dFactor = 1 - ((float) dot.getStateDuration()/ DURATION_ANIMATION);
+                        //Set Radius
+                        float dRadius = mDotRadius * dFactor;
+                        //Set Paint
+                        Paint dPaint = new Paint();
+                        dPaint.set(paint);
+                        dPaint.setAlpha((int) (255 * dFactor));
+
+                        canvas.drawCircle(dot.getCenterX(), dot.getCenterY(), dRadius, dPaint);
+                        break;
+                    case APPEARING:
+                        //Determine how far into the animation we are
+                        float aFactor = (float) dot.getStateDuration()/ DURATION_ANIMATION;
+                        //Set Radius
+                        float aRadius = mDotRadius * aFactor;
+                        //Set Paint
+                        Paint aPaint = new Paint();
+                        aPaint.set(paint);
+                        aPaint.setAlpha((int) (255 * aFactor));
+
+                        canvas.drawCircle(dot.getCenterX(), dot.getCenterY(), aRadius, aPaint);
+                        break;
                 }
             }
 
