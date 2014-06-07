@@ -8,6 +8,10 @@ public class Dot {
 
     private float centerX;
     private float centerY;
+
+    private DotState state;
+    private long stateStartTime;
+
     private boolean isVisible;
 
 
@@ -19,6 +23,10 @@ public class Dot {
 
         this.centerX = 0;
         this.centerY = 0;
+
+        this.state = DotState.INVISIBLE;
+        this.stateStartTime = System.currentTimeMillis();
+
         this.isVisible = false;
     }
 
@@ -50,11 +58,23 @@ public class Dot {
         this.centerY = centerY;
     }
 
-    public boolean isVisible() {
-        return isVisible;
+    public DotState getState() {
+        return state;
     }
 
-    public void setVisible(boolean isVisible) {
-        this.isVisible = isVisible;
+    public void setState(DotState state) {
+        this.state = state;
+    }
+
+    public long getStateStartTime() {
+        return stateStartTime;
+    }
+
+    public void setStateStartTime(long stateStartTime) {
+        this.stateStartTime = stateStartTime;
+    }
+
+    public boolean isVisible() {
+        return (state == DotState.VISIBLE);
     }
 }

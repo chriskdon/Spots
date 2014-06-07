@@ -16,11 +16,13 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Stack;
 
 import ca.brocku.dotscanvas.app.gameboard.Dot;
 import ca.brocku.dotscanvas.app.gameboard.DotGrid;
+import ca.brocku.dotscanvas.app.gameboard.DotState;
 
 public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener {
     private GameThread thread; //Handles drawing; initialized in surfaceCreated() callback
@@ -172,6 +174,10 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         private int mScore;
         private int mMissedDots;
 
+        private int fps = 60;
+        private int animationDuration = 1000;
+        private ArrayList<Dot> animatedDots = new ArrayList<Dot>();
+
         public GameThread(SurfaceHolder surfaceHolder, Context context, ScoreViewHandler scoreViewHandler, MissedViewHandler missedViewHandler) {
             mSurfaceHolder = surfaceHolder;
             mContext = context;
@@ -187,7 +193,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
             //TODO remove when dots appear randomly
             for(Dot dot: mDotGrid) {
-                dot.setVisible(true);
+                dot.setState(DotState.VISIBLE);
             }
 
             mDotChain = new Stack<Dot>();
@@ -397,7 +403,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
             //Hide all of the dots in the dot chain
             for(Dot dot: mDotChain) {
-                dot.setVisible(false);
+                dot.setState(DotState.INVISIBLE);
+                animatedDots.add(dot);
             }
             mDotChain.clear();
 
@@ -415,6 +422,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
                         if(!mDotChain.contains(dot) && isDotAdjacent(dot)) {
                             mDotChain.push(dot);
                             //TODO animate dot
+
                         }
                         break;
                     }
