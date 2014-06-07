@@ -155,6 +155,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         private SurfaceHolder mSurfaceHolder;
         private Context mContext;
         private ScoreViewHandler mScoreViewHandler;
+        private MissedViewHandler mMissedViewHandler;
 
         private int mCanvasHeight = 1;
         private int mCanvasWidth = 1;
@@ -183,6 +184,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             mSurfaceHolder = surfaceHolder;
             mContext = context;
             mScoreViewHandler = scoreViewHandler;
+            mMissedViewHandler = missedViewHandler;
 
             mRun = false;
             mBlock = false;
@@ -508,6 +510,16 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             mScoreViewHandler.sendMessage(message);
         }
 
+        private void updateMissedByOne() {
+            mMissedDots++;
+
+            Message message = mMissedViewHandler.obtainMessage();
+            Bundle bundle = new Bundle();
+            bundle.putInt(GAME_MISSED, DOTS_TO_MISS-mMissedDots);
+            message.setData(bundle);
+            mMissedViewHandler.sendMessage(message);
+        }
+
         private void updateState() {
             for(Dot dot: mDotGrid) {
                 long stateDuration = dot.getStateDuration();
@@ -516,6 +528,10 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
                     case VISIBLE:
                         if(stateDuration > DURATION_VISIBLE) {
                             dot.setState(DotState.DISAPPEARING);
+                            updateMissedByOne();
+                            if(mMissedDots >= DOTS_TO_MISS) {
+                                mRun = false;
+                            }
                         }
                         break;
                     case DISAPPEARING:
