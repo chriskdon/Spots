@@ -4,18 +4,21 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_horizontal"
+    android:background="@color/background"
     tools:context="ca.brocku.dotscanvas.app.MainActivity">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="0"
+        android:textColor="@color/text"
         android:id="@+id/score_textView"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="10"
+        android:text="15"
+        android:textColor="@color/text"
         android:id="@+id/missed_textView"/>
 
     <ca.brocku.dotscanvas.app.GameSurfaceView

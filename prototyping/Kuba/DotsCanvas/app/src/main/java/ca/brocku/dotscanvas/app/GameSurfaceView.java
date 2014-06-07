@@ -541,7 +541,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
                         break;
                     case INVISIBLE: //TODO make insane algorithm to determine when a dot should appear
                         if(stateDuration > 2000) {
-                            if((int)(Math.random()*600) == 1) {
+                            if((int)(Math.random()*800) == 1) {
                                 dot.setState(DotState.APPEARING);
                             }
                         }
@@ -556,10 +556,10 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         }
 
         private void doDraw(Canvas canvas) {
-            canvas.drawColor(Color.WHITE); //clear the screen
+            canvas.drawColor(Color.rgb(51,51,51)); //clear the screen
 
             Paint paint = new Paint();
-            paint.setColor(Color.RED);
+            paint.setColor(Color.rgb(237,17,100));
             paint.setStrokeWidth(15);
 
             //Draw dots
