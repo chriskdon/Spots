@@ -12,8 +12,6 @@ public class Dot {
     private DotState state;
     private long stateStartTime;
 
-    private boolean isVisible;
-
 
     public Dot(int id, int row, int col) {
         this.ID = id;
@@ -26,8 +24,6 @@ public class Dot {
 
         this.state = DotState.INVISIBLE;
         this.stateStartTime = System.currentTimeMillis();
-
-        this.isVisible = false;
     }
 
     public int getID() {
@@ -62,16 +58,20 @@ public class Dot {
         return state;
     }
 
+    /**
+     * Sets the state. Also resets the stateStartTime if we are changing states.
+     *
+     * @param state the new state of the Dot
+     */
     public void setState(DotState state) {
-        this.state = state;
+        if(this.state != state) {
+            this.state = state;
+            this.stateStartTime = System.currentTimeMillis();
+        }
     }
 
     public long getStateStartTime() {
         return stateStartTime;
-    }
-
-    public void setStateStartTime(long stateStartTime) {
-        this.stateStartTime = stateStartTime;
     }
 
     public boolean isVisible() {
