@@ -198,7 +198,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 //            for(Dot dot: mDotGrid) {
 //                int random = (int) (Math.random()*3);
 //                //if(random == 1) dot.setState(DotState.APPEARING);
-//                dot.setState(DotState.APPEARING);
+//                dot.setState(DotState.VISIBLE);
 //            }
 
             mDotChain = new Stack<Dot>();
@@ -391,7 +391,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             mChainingLineY = y;
 
             for(Dot dot: mDotGrid) {
-                if(dot.isVisible() && isTouchWithinDot(x, y, dot)) {
+                if(dot.isVisible() && isTouchWithinDot(x, y, dot, 1.4f)) {
                     mDotChain.push(dot);
                     //TODO animate dot
                     break;
@@ -422,7 +422,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
             if(!mDotChain.isEmpty()) {
                 for(Dot dot: mDotGrid) {
-                    if(dot.isVisible() && isTouchWithinDot(x, y, dot)) {
+                    if(dot.isVisible() && isTouchWithinDot(x, y, dot, 1)) {
                         if(!mDotChain.contains(dot) && isDotAdjacent(dot)) {
                             mDotChain.push(dot);
                             //TODO animate dot
@@ -478,11 +478,11 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             }
         }
 
-        private boolean isTouchWithinDot(float x, float y, Dot dot) {
+        private boolean isTouchWithinDot(float x, float y, Dot dot, float radiusFactor) {
             float diffX = Math.abs(x - dot.getCenterX());
             float diffY = Math.abs(y - dot.getCenterY());
 
-            return (diffX <= mDotRadius && diffY <= mDotRadius);
+            return (diffX <= mDotRadius*radiusFactor && diffY <= mDotRadius*radiusFactor);
         }
 
         private boolean isDotAdjacent(Dot dot) {
