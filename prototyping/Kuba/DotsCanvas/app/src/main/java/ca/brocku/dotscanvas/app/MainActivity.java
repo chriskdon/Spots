@@ -1,11 +1,19 @@
 package ca.brocku.dotscanvas.app;
 
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PictureDrawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.caverock.androidsvg.SVG;
+import com.caverock.androidsvg.SVGParseException;
+
+import java.io.FileInputStream;
 
 public class MainActivity extends ActionBarActivity {
     private GameSurfaceView mGameSurfaceView;
