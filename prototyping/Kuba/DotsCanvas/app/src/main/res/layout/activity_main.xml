@@ -27,10 +27,11 @@
         android:layout_height="320dp"
         android:id="@+id/game_surfaceView"/>
 
-    <ca.brocku.dotscanvas.app.views.SVGView
+
+    <ca.brocku.dotscanvas.app.views.SVGImageButton
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_marginTop="40dp"
-        app:asset_filename="pause.svg"/>
-
+        app:normal_asset_filename="pause-01.svg"
+        app:touch_asset_filename="pause-02.svg" />
 </LinearLayout>
