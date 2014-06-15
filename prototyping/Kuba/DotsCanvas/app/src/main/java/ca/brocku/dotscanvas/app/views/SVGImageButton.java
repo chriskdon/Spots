@@ -30,6 +30,8 @@ public class SVGImageButton extends SVGImageView {
     public SVGImageButton(Context context, AttributeSet attrs)
     {
         super(context, attrs);
+
+
     }
 
     @Override
