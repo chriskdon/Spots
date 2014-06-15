@@ -65,13 +65,13 @@ public class SVGImageButton extends SVGImageView {
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        super.onTouchEvent(event);
-
         if(event.getAction() == MotionEvent.ACTION_DOWN) {
             setSVGImage(touchAssetName);
         } else if(event.getAction() == MotionEvent.ACTION_UP) {
             setSVGImage(normalAssetName);
         }
+
+        super.onTouchEvent(event);
 
         return true;
     }
