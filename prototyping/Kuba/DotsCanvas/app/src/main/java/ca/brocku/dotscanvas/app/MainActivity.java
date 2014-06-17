@@ -1,11 +1,24 @@
 package ca.brocku.dotscanvas.app;
 
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PictureDrawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.caverock.androidsvg.SVG;
+import com.caverock.androidsvg.SVGParseException;
+
+import java.io.FileInputStream;
+
+import ca.brocku.dotscanvas.app.views.SVGImageButton;
 
 public class MainActivity extends ActionBarActivity {
     private GameSurfaceView mGameSurfaceView;
@@ -14,6 +27,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.e("MainActivity", "onCreate");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -23,6 +37,16 @@ public class MainActivity extends ActionBarActivity {
 
         mGameSurfaceView.setScoreView(mScoreTextView);
         mGameSurfaceView.setMissedView(mMissedTextView);
+
+        SVGImageButton button = (SVGImageButton)findViewById(R.id.btn_Pause);
+        button.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Toast.makeText(MainActivity.this, "Pause", Toast.LENGTH_SHORT).show();
+
+                return false;
+            }
+        });
     }
 
     @Override

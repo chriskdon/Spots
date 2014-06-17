@@ -33,19 +33,21 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     public GameSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        //Register this SurfaceHolder to listen for changes to the Surface
-        SurfaceHolder surfaceHolder = getHolder();
-        surfaceHolder.addCallback(this);
+        if(!isInEditMode()) {
+            //Register this SurfaceHolder to listen for changes to the Surface
+            SurfaceHolder surfaceHolder = getHolder();
+            surfaceHolder.addCallback(this);
 
-        //Register this to listen for click events
-        this.setOnTouchListener(this);
+            //Register this to listen for click events
+            this.setOnTouchListener(this);
 
-        mContext =  context;
+            mContext = context;
 
-        //Clear any saved game state
-        SharedPreferences.Editor editor =
-                mContext.getSharedPreferences(GameThread.GAME_STATE_FILENAME, Context.MODE_PRIVATE).edit();
-        editor.clear().commit();
+            //Clear any saved game state
+            SharedPreferences.Editor editor =
+                    mContext.getSharedPreferences(GameThread.GAME_STATE_FILENAME, Context.MODE_PRIVATE).edit();
+            editor.clear().commit();
+        }
     }
 
     /**
@@ -559,6 +561,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             canvas.drawColor(Color.rgb(51,51,51)); //clear the screen
 
             Paint paint = new Paint();
+
+            paint.setAntiAlias(true);
             paint.setColor(Color.rgb(237,17,100));
             paint.setStrokeWidth(15);
 
