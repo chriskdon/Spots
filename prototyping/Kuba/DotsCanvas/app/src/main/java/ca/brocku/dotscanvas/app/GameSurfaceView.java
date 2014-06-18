@@ -16,7 +16,6 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Stack;
 
@@ -33,7 +32,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     public GameSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        if(!isInEditMode()) {
+        if (!isInEditMode()) {
             //Register this SurfaceHolder to listen for changes to the Surface
             SurfaceHolder surfaceHolder = getHolder();
             surfaceHolder.addCallback(this);
@@ -52,10 +51,10 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
     /**
      * Callback for the SurfaceHolder once the surface is created.
-     *
+     * <p/>
      * Create a new thread here for every new surface to tie the thread's lifecycle to that of the
      * surface.
-     *
+     * <p/>
      * Start the thread here so we don't busy-wait in run() waiting for the surface to be created
      *
      * @param surfaceHolder the SurfaceHolder whose surface has been created.
@@ -74,7 +73,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
      *
      * @param holder the SurfaceHolder whose surface has changed.
      * @param format the new PixelFormat of the surface.
-     * @param width the new width of the surface.
+     * @param width  the new width of the surface.
      * @param height the new height of the surface.
      */
     @Override
@@ -85,7 +84,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
     /**
      * Callback for the SurfaceHolder once the surface is destroyed.
-     *
+     * <p/>
      * Tell the thread to stop and wait for it to finish so that it does not touch the Surface after
      * we return and explode.
      *
@@ -114,13 +113,13 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     }
 
     public void onPauseGame() {
-        if(thread != null) {
+        if (thread != null) {
             thread.onPause();
         }
     }
 
     public void onResumeGame() {
-        if(thread != null) {
+        if (thread != null) {
             thread.onResume();
         }
     }
@@ -152,7 +151,6 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
         private static final long DURATION_ANIMATION = 100;
         private static final long DURATION_VISIBLE = 2000;
-        private int fps = 60;
 
         private SurfaceHolder mSurfaceHolder;
         private Context mContext;
@@ -181,6 +179,10 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         private int mScore;
         private int mMissedDots;
 
+        // Game Loop
+        private final static int MAX_FPS = 60;                  // Desired fps
+        private final static int MAX_FRAME_SKIPS = 5;           // Maximum number of frames to be skipped
+        private final static int FRAME_PERIOD = 1000 / MAX_FPS; // The frame period
 
         public GameThread(SurfaceHolder surfaceHolder, Context context, ScoreViewHandler scoreViewHandler, MissedViewHandler missedViewHandler) {
             mSurfaceHolder = surfaceHolder;
@@ -214,16 +216,49 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
         @Override
         public void run() {
-            while(mRun) {
+            long beginTime;        // the time when the cycle begun
+            long timeDiff;        // the time it took for the cycle to execute
+            int sleepTime;        // ms to sleep (<0 if we're behind)
+            int framesSkipped;    // number of frames being skipped
+
+            while (mRun) {
+
                 Canvas c = null;
                 try {
                     c = mSurfaceHolder.lockCanvas();
                     synchronized (mSurfaceHolder) {
+                        Log.d("MAIN LOOP", "TICK");
+                        beginTime = System.currentTimeMillis();
+                        framesSkipped = 0;    // resetting the frames skipped
 
                         updateState();
 
-                        if(c != null) {
+
+                        if (c != null) {
                             doDraw(c);
+                        }
+
+                        timeDiff = System.currentTimeMillis() - beginTime;
+                        // calculate sleep time
+                        sleepTime = (int) (FRAME_PERIOD - timeDiff);
+
+                        if (sleepTime > 0) {
+                            // if sleepTime > 0 we're OK
+                            try {
+                                // send the thread to sleep for a short period
+                                // very useful for battery saving
+                                Thread.sleep(sleepTime);
+                            } catch (InterruptedException e) {
+                            }
+                        }
+
+                        while (sleepTime < 0 && framesSkipped < MAX_FRAME_SKIPS) {
+                            // we need to catch up
+                            // update without rendering
+                            updateState();
+                            // add frame period to check if in next frame
+                            sleepTime += FRAME_PERIOD;
+                            framesSkipped++;
                         }
                     }
 
@@ -239,10 +274,11 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
                 //Wait this thread when the Activity onPauses
                 synchronized (mSurfaceHolder) {
-                    while(mBlock) {
+                    while (mBlock) {
                         try {
                             mSurfaceHolder.wait();
-                        } catch (InterruptedException e) {}
+                        } catch (InterruptedException e) {
+                        }
                     }
                 }
             }
@@ -250,8 +286,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
         /**
          * Whether or not this thread should finish. It is set based on the state of the Surface.
-         *  surfaceCreated --> run thread
-         *  surfaceDestroyed --> stop thread
+         * surfaceCreated --> run thread
+         * surfaceDestroyed --> stop thread
          *
          * @param b whether the thread should continue running
          */
@@ -283,7 +319,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         public void saveState() {
             Log.e("THREAD", "saveState");
             synchronized (mSurfaceHolder) {
-                if(!mGameOver && !mQuitRequested) {
+                if (!mGameOver && !mQuitRequested) {
                     SharedPreferences.Editor editor =
                             mContext.getSharedPreferences(GAME_STATE_FILENAME, Context.MODE_PRIVATE).edit();
 
@@ -338,10 +374,9 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
          * Called when the Surface size changes to store the updated canvas dimensions and related
          * measurements.
          *
-         * @see ca.brocku.dotscanvas.app.GameSurfaceView#surfaceChanged
-         *
-         * @param width the new width of the the new width of the surface.
+         * @param width  the new width of the the new width of the surface.
          * @param height the new height of the surface.
+         * @see ca.brocku.dotscanvas.app.GameSurfaceView#surfaceChanged
          */
         public void setSurfaceSize(int width, int height) {
             synchronized (mSurfaceHolder) {
@@ -349,11 +384,11 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
                 mCanvasWidth = width;
                 mCanvasLength = height < width ? height : width;
 
-                mPixelsPerDotRegion = mCanvasLength/GRID_LENGTH;
-                mDotRadius = mPixelsPerDotRegion*2.0f/3.0f /2;
-                mMaxLineLength = (float) (1.5*mPixelsPerDotRegion);
+                mPixelsPerDotRegion = mCanvasLength / GRID_LENGTH;
+                mDotRadius = mPixelsPerDotRegion * 2.0f / 3.0f / 2;
+                mMaxLineLength = (float) (1.5 * mPixelsPerDotRegion);
 
-                for(Dot dot: mDotGrid) {
+                for (Dot dot : mDotGrid) {
                     dot.setCenterX(
                             (float) ((float) dot.getRow() * mPixelsPerDotRegion + mPixelsPerDotRegion / 2.0));
                     dot.setCenterY(
@@ -392,8 +427,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             mChainingLineX = x;
             mChainingLineY = y;
 
-            for(Dot dot: mDotGrid) {
-                if(dot.isVisible() && isTouchWithinDot(x, y, dot, 1.4f)) {
+            for (Dot dot : mDotGrid) {
+                if (dot.isVisible() && isTouchWithinDot(x, y, dot, 1.4f)) {
                     mDotChain.push(dot);
                     //TODO animate dot
                     break;
@@ -409,7 +444,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             updateScore();
 
             //Hide all of the dots in the dot chain
-            for(Dot dot: mDotChain) {
+            for (Dot dot : mDotChain) {
                 dot.setState(DotState.DISAPPEARING);
             }
             mDotChain.clear();
@@ -422,10 +457,10 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
             setInteractingCoordinates(x, y);
 
-            if(!mDotChain.isEmpty()) {
-                for(Dot dot: mDotGrid) {
-                    if(dot.isVisible() && isTouchWithinDot(x, y, dot, 1)) {
-                        if(!mDotChain.contains(dot) && isDotAdjacent(dot)) {
+            if (!mDotChain.isEmpty()) {
+                for (Dot dot : mDotGrid) {
+                    if (dot.isVisible() && isTouchWithinDot(x, y, dot, 1)) {
+                        if (!mDotChain.contains(dot) && isDotAdjacent(dot)) {
                             mDotChain.push(dot);
                             //TODO animate dot
 
@@ -443,34 +478,34 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         }
 
         private void setInteractingCoordinates(float endX, float endY) {
-            if(!mDotChain.isEmpty()) {
+            if (!mDotChain.isEmpty()) {
                 Dot lastDot = mDotChain.peek();
                 float startX = lastDot.getCenterX();
                 float startY = lastDot.getCenterY();
 
                 //Lengths from the start to the end coordinates
-                float diffX = Math.abs(startX- endX);
-                float diffY = Math.abs(startY- endY);
+                float diffX = Math.abs(startX - endX);
+                float diffY = Math.abs(startY - endY);
 
-                if(diffX > mMaxLineLength || diffY > mMaxLineLength) { //if a length exceeds the max allowed
+                if (diffX > mMaxLineLength || diffY > mMaxLineLength) { //if a length exceeds the max allowed
 
                     //The factor represents how much larger the larger distance of the two is than the max length allowed
-                    float factor = (diffX >= diffY ? diffX/mMaxLineLength : diffY/mMaxLineLength);
+                    float factor = (diffX >= diffY ? diffX / mMaxLineLength : diffY / mMaxLineLength);
 
                     //Trim each axis' distance by the factor
                     diffX /= factor;
                     diffY /= factor;
 
                     //Adjust ending coordinates
-                    if(startX- endX > 0) {
-                        mChainingLineX = startX-diffX;
-                    } else if(startX- endX < 0) {
-                        mChainingLineX = startX+diffX;
+                    if (startX - endX > 0) {
+                        mChainingLineX = startX - diffX;
+                    } else if (startX - endX < 0) {
+                        mChainingLineX = startX + diffX;
                     }
-                    if(startY- endY > 0) {
-                        mChainingLineY = startY-diffY;
-                    } else if(startY- endY < 0) {
-                        mChainingLineY = startY+diffY;
+                    if (startY - endY > 0) {
+                        mChainingLineY = startY - diffY;
+                    } else if (startY - endY < 0) {
+                        mChainingLineY = startY + diffY;
                     }
 
                 } else { //line length within limit, set values
@@ -484,15 +519,15 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             float diffX = Math.abs(x - dot.getCenterX());
             float diffY = Math.abs(y - dot.getCenterY());
 
-            return (diffX <= mDotRadius*radiusFactor && diffY <= mDotRadius*radiusFactor);
+            return (diffX <= mDotRadius * radiusFactor && diffY <= mDotRadius * radiusFactor);
         }
 
         private boolean isDotAdjacent(Dot dot) {
-            if(!mDotChain.isEmpty()) {
+            if (!mDotChain.isEmpty()) {
                 Dot lastDot = mDotChain.peek();
 
                 //Check if dot is adjacent to the last selected dot
-                if(Math.abs(dot.getRow() - lastDot.getRow()) <= 1 && Math.abs(dot.getCol()-lastDot.getCol()) <= 1) {
+                if (Math.abs(dot.getRow() - lastDot.getRow()) <= 1 && Math.abs(dot.getCol() - lastDot.getCol()) <= 1) {
                     return true;
                 }
             }
@@ -501,7 +536,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         }
 
         private void updateScore() {
-            if(!mDotChain.isEmpty()) {
+            if (!mDotChain.isEmpty()) {
                 mScore += Math.pow(mDotChain.size(), 2);
             }
 
@@ -517,39 +552,39 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
             Message message = mMissedViewHandler.obtainMessage();
             Bundle bundle = new Bundle();
-            bundle.putInt(GAME_MISSED, DOTS_TO_MISS-mMissedDots);
+            bundle.putInt(GAME_MISSED, DOTS_TO_MISS - mMissedDots);
             message.setData(bundle);
             mMissedViewHandler.sendMessage(message);
         }
 
         private void updateState() {
-            for(Dot dot: mDotGrid) {
+            for (Dot dot : mDotGrid) {
                 long stateDuration = dot.getStateDuration();
 
                 switch (dot.getState()) {
                     case VISIBLE:
-                        if(stateDuration > DURATION_VISIBLE) {
+                        if (stateDuration > DURATION_VISIBLE) {
                             dot.setState(DotState.DISAPPEARING);
                             updateMissedByOne();
-                            if(mMissedDots >= DOTS_TO_MISS) {
+                            if (mMissedDots >= DOTS_TO_MISS) {
                                 mRun = false;
                             }
                         }
                         break;
                     case DISAPPEARING:
-                        if(stateDuration > DURATION_ANIMATION) {
+                        if (stateDuration > DURATION_ANIMATION) {
                             dot.setState(DotState.INVISIBLE);
                         }
                         break;
                     case INVISIBLE: //TODO make insane algorithm to determine when a dot should appear
-                        if(stateDuration > 2000) {
-                            if((int)(Math.random()*800) == 1) {
+                        if (stateDuration > 2000) {
+                            if ((int) (Math.random() * 800) == 1) {
                                 dot.setState(DotState.APPEARING);
                             }
                         }
                         break;
                     case APPEARING:
-                        if(stateDuration > DURATION_ANIMATION) {
+                        if (stateDuration > DURATION_ANIMATION) {
                             dot.setState(DotState.VISIBLE);
                         }
                         break;
@@ -558,23 +593,23 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         }
 
         private void doDraw(Canvas canvas) {
-            canvas.drawColor(Color.rgb(51,51,51)); //clear the screen
+            canvas.drawColor(Color.rgb(51, 51, 51)); //clear the screen
 
             Paint paint = new Paint();
 
             paint.setAntiAlias(true);
-            paint.setColor(Color.rgb(237,17,100));
+            paint.setColor(Color.rgb(237, 17, 100));
             paint.setStrokeWidth(15);
 
             //Draw dots
-            for(Dot dot: mDotGrid) {
+            for (Dot dot : mDotGrid) {
                 switch (dot.getState()) {
                     case VISIBLE:
                         canvas.drawCircle(dot.getCenterX(), dot.getCenterY(), mDotRadius, paint);
                         break;
                     case DISAPPEARING:
                         //Determine how far into the animation we are
-                        float dFactor = 1 - ((float) dot.getStateDuration()/ DURATION_ANIMATION);
+                        float dFactor = 1 - ((float) dot.getStateDuration() / DURATION_ANIMATION);
                         //Set Radius
                         float dRadius = mDotRadius * dFactor;
                         //Set Paint
@@ -586,7 +621,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
                         break;
                     case APPEARING:
                         //Determine how far into the animation we are
-                        float aFactor = (float) dot.getStateDuration()/ DURATION_ANIMATION;
+                        float aFactor = (float) dot.getStateDuration() / DURATION_ANIMATION;
                         //Set Radius
                         float aRadius = mDotRadius * aFactor;
                         //Set Paint
@@ -600,16 +635,16 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             }
 
             //Draw lines
-            if(mInteracting) {
+            if (mInteracting) {
                 //Draw lines between chained dots
                 {
                     Iterator<Dot> iterator = mDotChain.iterator();
-                    if(iterator.hasNext()) {
+                    if (iterator.hasNext()) {
                         Dot startDot = iterator.next();
                         float startX = startDot.getCenterX();
                         float startY = startDot.getCenterY();
 
-                        while(iterator.hasNext()) {
+                        while (iterator.hasNext()) {
                             Dot endDot = iterator.next();
 
                             canvas.drawLine(startX, startY, endDot.getCenterX(), endDot.getCenterY(), paint);
