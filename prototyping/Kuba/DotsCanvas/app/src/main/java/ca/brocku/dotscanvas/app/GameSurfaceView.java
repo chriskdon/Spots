@@ -56,7 +56,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         Log.e("Thread", "surfaceCreated()");
         thread = new GameThread(surfaceHolder, mContext,
                 new ScoreViewHandler(mScoreView), new MissedViewHandler(mMissedView));
-        
+
         thread.restoreState();
         thread.start();
     }

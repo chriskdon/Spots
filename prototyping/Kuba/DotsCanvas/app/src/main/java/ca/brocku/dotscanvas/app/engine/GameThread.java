@@ -5,8 +5,6 @@ import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.Bundle;
-import android.os.Message;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -41,7 +39,7 @@ public class GameThread extends Thread {
 
     private int mCanvasHeight = 1;
     private int mCanvasWidth = 1;
-    private float mCanvasLength = 1; //the smaller of the height and width
+    private float mCanvasLength = (mCanvasHeight > mCanvasWidth ? mCanvasWidth : mCanvasHeight); //the smaller of the height and width
     private float mPixelsPerDotRegion = 1;
     private float mDotRadius = 1;
     private float mMaxLineLength = 1;
@@ -438,7 +436,7 @@ public class GameThread extends Thread {
             mScore += Math.pow(mDotChain.size(), 2);
         }
 
-       mScoreViewHandler.updateScore(mScore);
+        mScoreViewHandler.updateScore(mScore);
     }
 
     private void updateMissedByOne() {
