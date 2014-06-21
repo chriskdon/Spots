@@ -260,6 +260,12 @@ public class GameThread extends Thread {
         }
     }
 
+    public boolean isGamePaused() {
+        synchronized (mSurfaceHolder) {
+            return mBlock;
+        }
+    }
+
     public void setQuitRequested(boolean isQuitRequested) {
         synchronized (mSurfaceHolder) {
             this.mQuitRequested = isQuitRequested;

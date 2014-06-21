@@ -121,6 +121,10 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         return thread;
     }
 
+    public boolean isGamePaused() {
+        return thread.isGamePaused();
+    }
+
     public void setScoreView(TextView scoreView) {
         this.mScoreView = scoreView;
     }

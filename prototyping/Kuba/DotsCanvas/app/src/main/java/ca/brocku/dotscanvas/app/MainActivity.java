@@ -1,7 +1,5 @@
 package ca.brocku.dotscanvas.app;
 
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.PictureDrawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,20 +7,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.caverock.androidsvg.SVG;
-import com.caverock.androidsvg.SVGParseException;
-
-import java.io.FileInputStream;
 
 import ca.brocku.dotscanvas.app.views.SVGImageButton;
 
 public class MainActivity extends ActionBarActivity {
     private GameSurfaceView mGameSurfaceView;
     private TextView mScoreTextView, mMissedTextView;
+    private SVGImageButton mPauseButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,17 +27,16 @@ public class MainActivity extends ActionBarActivity {
         mGameSurfaceView = (GameSurfaceView) findViewById(R.id.game_surfaceView);
         mScoreTextView = (TextView) findViewById(R.id.score_textView);
         mMissedTextView = (TextView) findViewById(R.id.missed_textView);
+        mPauseButton = (SVGImageButton)findViewById(R.id.btn_Pause);
 
         mGameSurfaceView.setScoreView(mScoreTextView);
         mGameSurfaceView.setMissedView(mMissedTextView);
-
-        SVGImageButton button = (SVGImageButton)findViewById(R.id.btn_Pause);
-        button.setOnTouchListener(new View.OnTouchListener() {
+        mPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Toast.makeText(MainActivity.this, "Pause", Toast.LENGTH_SHORT).show();
-
-                return false;
+            public void onClick(View view) {
+                Toast.makeText(MainActivity.this, "Paused", Toast.LENGTH_SHORT).show();
+                mGameSurfaceView.onPauseGame();
+                //TODO display pause menu
             }
         });
     }
@@ -69,19 +61,28 @@ public class MainActivity extends ActionBarActivity {
         Log.e("MainActivity", "onPause");
         super.onPause();
         mGameSurfaceView.onPauseGame(); // pause game when Activity pauses
+        //TODO display pause menu
     }
 
     @Override
     protected void onResume() {
         Log.e("MainActivity", "onResume");
         super.onResume();
+        //TODO remove the following onResumeGame() as pause menu will be present
         mGameSurfaceView.onResumeGame(); //resume game when Activity resumes
     }
 
     @Override
     public void onBackPressed() {
-        //TODO: display pause menu here...call mGameSurfaceView.onPauseGame() or possibly this.onPause() to wait thread
-
-        //super.onBackPressed();
+        if(mGameSurfaceView.isGamePaused()) {
+            //TODO hide pause menu
+            Toast.makeText(MainActivity.this, "Resumed", Toast.LENGTH_SHORT).show();
+            mGameSurfaceView.onResumeGame();
+        } else {
+            //TODO display pause menu
+            mGameSurfaceView.onPauseGame();
+            Toast.makeText(MainActivity.this, "Paused", Toast.LENGTH_SHORT).show();
+        }
     }
 }
+
