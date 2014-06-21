@@ -497,6 +497,10 @@ public class GameThread extends Thread {
 
         //Draw dots
         for (Dot dot : mDotGrid) {
+            Paint invisibleDotPaint = new Paint(paint);
+            invisibleDotPaint.setColor(Color.rgb(77,77,77));
+            canvas.drawCircle(dot.getCenterX(), dot.getCenterY(), mDotRadius*0.75f, invisibleDotPaint);
+
             switch (dot.getState()) {
                 case VISIBLE:
                     canvas.drawCircle(dot.getCenterX(), dot.getCenterY(), mDotRadius, paint);
@@ -507,8 +511,7 @@ public class GameThread extends Thread {
                     //Set Radius
                     float dRadius = mDotRadius * dFactor;
                     //Set Paint
-                    Paint dPaint = new Paint();
-                    dPaint.set(paint);
+                    Paint dPaint = new Paint(paint);
                     dPaint.setAlpha((int) (255 * dFactor));
 
                     canvas.drawCircle(dot.getCenterX(), dot.getCenterY(), dRadius, dPaint);
