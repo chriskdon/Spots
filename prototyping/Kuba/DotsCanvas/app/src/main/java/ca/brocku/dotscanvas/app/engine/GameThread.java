@@ -12,6 +12,7 @@ import android.view.SurfaceHolder;
 import java.util.Iterator;
 import java.util.Stack;
 
+import ca.brocku.dotscanvas.app.R;
 import ca.brocku.dotscanvas.app.engine.Handlers.MissedViewHandler;
 import ca.brocku.dotscanvas.app.engine.Handlers.ScoreViewHandler;
 import ca.brocku.dotscanvas.app.gameboard.Dot;
@@ -487,7 +488,7 @@ public class GameThread extends Thread {
     }
 
     private void doDraw(Canvas canvas) {
-        canvas.drawColor(Color.rgb(51, 51, 51)); //clear the screen
+        canvas.drawColor(mContext.getResources().getColor(R.color.background)); //clear the screen
 
         Paint paint = new Paint();
 
