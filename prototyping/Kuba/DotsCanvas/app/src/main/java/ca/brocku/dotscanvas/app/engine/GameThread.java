@@ -30,8 +30,8 @@ public class GameThread extends Thread {
     private static final int NUMBER_OF_DOTS = 36;
     private static final int DOTS_TO_MISS = 15;
 
-    private static final long DURATION_ANIMATION = 100;
-    private static final long DURATION_VISIBLE = 2000;
+    private static final long DURATION_VISIBILITY_ANIMATION = 100; //time to appear/disappear
+    private static final long DURATION_VISIBLE = 2000; //time for which dot stays visible
 
     private SurfaceHolder mSurfaceHolder;
     private Context mContext;
@@ -467,7 +467,7 @@ public class GameThread extends Thread {
                     }
                     break;
                 case DISAPPEARING:
-                    if (stateDuration > DURATION_ANIMATION) {
+                    if (stateDuration > DURATION_VISIBILITY_ANIMATION) {
                         dot.setState(DotState.INVISIBLE);
                     }
                     break;
@@ -479,7 +479,7 @@ public class GameThread extends Thread {
                     }
                     break;
                 case APPEARING:
-                    if (stateDuration > DURATION_ANIMATION) {
+                    if (stateDuration > DURATION_VISIBILITY_ANIMATION) {
                         dot.setState(DotState.VISIBLE);
                     }
                     break;
@@ -508,7 +508,7 @@ public class GameThread extends Thread {
                     break;
                 case DISAPPEARING:
                     //Determine how far into the animation we are
-                    float dFactor = 1 - ((float) dot.getStateDuration() / DURATION_ANIMATION);
+                    float dFactor = 1 - ((float) dot.getStateDuration() / DURATION_VISIBILITY_ANIMATION);
                     //Set Radius
                     float dRadius = mDotRadius * dFactor;
                     //Set Paint
@@ -519,7 +519,7 @@ public class GameThread extends Thread {
                     break;
                 case APPEARING:
                     //Determine how far into the animation we are
-                    float aFactor = (float) dot.getStateDuration() / DURATION_ANIMATION;
+                    float aFactor = (float) dot.getStateDuration() / DURATION_VISIBILITY_ANIMATION;
                     //Set Radius
                     float aRadius = mDotRadius * aFactor;
                     //Set Paint
