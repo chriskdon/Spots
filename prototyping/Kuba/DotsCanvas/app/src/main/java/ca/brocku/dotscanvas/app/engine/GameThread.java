@@ -488,7 +488,7 @@ public class GameThread extends Thread {
     }
 
     private void doDraw(Canvas canvas) {
-        canvas.drawColor(mContext.getResources().getColor(R.color.background)); //clear the screen
+        canvas.drawColor(mContext.getResources().getColor(R.color.canvas_background)); //clear the screen
 
         Paint paint = new Paint();
 

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="background">#333333</color>
+    <color name="background">#313131</color>
+    <color name="canvas_background">#333333</color> <!-- Compensates for colors appearing darker on canvas -->
     <color name="text">#EEEEEE</color>
     <color name="grey_light">#4D4D4D</color>
 </resources>
