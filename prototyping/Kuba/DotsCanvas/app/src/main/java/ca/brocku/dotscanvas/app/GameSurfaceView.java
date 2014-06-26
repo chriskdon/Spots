@@ -2,6 +2,7 @@ package ca.brocku.dotscanvas.app;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.PixelFormat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -72,7 +73,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         Log.e("Thread", "surfaceChanged()");
-        thread.setSurfaceSize(width, height);
+        holder.setFormat(PixelFormat.RGBA_8888); //sets 32-bit color mode to match the views' colors
+        thread.onSurfaceChange(holder, width, height);
     }
 
     /**

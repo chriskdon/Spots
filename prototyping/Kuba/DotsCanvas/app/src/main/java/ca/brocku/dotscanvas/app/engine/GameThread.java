@@ -67,7 +67,6 @@ public class GameThread extends Thread {
 
     public GameThread(SurfaceHolder surfaceHolder, Context context,
                       ScoreViewHandler scoreViewHandler, MissedViewHandler missedViewHandler) {
-
         mSurfaceHolder = surfaceHolder;
         mContext = context;
         mScoreViewHandler = scoreViewHandler;
@@ -281,8 +280,9 @@ public class GameThread extends Thread {
      * @param height the new height of the surface.
      * @see ca.brocku.dotscanvas.app.GameSurfaceView#surfaceChanged
      */
-    public void setSurfaceSize(int width, int height) {
+    public void onSurfaceChange(SurfaceHolder surfaceHolder, int width, int height) {
         synchronized (mSurfaceHolder) {
+            mSurfaceHolder = surfaceHolder;
             mCanvasHeight = height;
             mCanvasWidth = width;
             mCanvasLength = height < width ? height : width;
@@ -298,7 +298,6 @@ public class GameThread extends Thread {
                         (float) ((float) dot.getCol() * mPixelsPerDotRegion + mPixelsPerDotRegion / 2.0));
             }
         }
-//            Log.i("SurfaceSize", "L: " + String.valueOf(mCanvasLength) + "; H: " + String.valueOf(mCanvasHeight) + "; W: " + String.valueOf(mCanvasWidth));
     }
 
     public boolean onTouch(MotionEvent motionEvent) {
@@ -488,7 +487,7 @@ public class GameThread extends Thread {
     }
 
     private void doDraw(Canvas canvas) {
-        canvas.drawColor(mContext.getResources().getColor(R.color.canvas_background)); //clear the screen
+        canvas.drawColor(mContext.getResources().getColor(R.color.background)); //clear the screen
 
         Paint paint = new Paint();
 
