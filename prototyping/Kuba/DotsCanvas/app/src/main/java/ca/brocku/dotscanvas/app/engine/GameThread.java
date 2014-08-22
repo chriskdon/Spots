@@ -115,7 +115,6 @@ public class GameThread extends Thread {
 
                     updateState();
 
-
                     if (c != null) {
                         doDraw(c);
                     }
@@ -498,8 +497,8 @@ public class GameThread extends Thread {
         //Draw dots
         for (Dot dot : mDotGrid) {
             Paint invisibleDotPaint = new Paint(paint);
-            invisibleDotPaint.setColor(Color.rgb(77,77,77));
-            canvas.drawCircle(dot.getCenterX(), dot.getCenterY(), mDotRadius*0.75f, invisibleDotPaint);
+            invisibleDotPaint.setColor(Color.rgb(77, 77, 77));
+            canvas.drawCircle(dot.getCenterX(), dot.getCenterY(), mDotRadius * 0.75f, invisibleDotPaint);
 
             switch (dot.getState()) {
                 case VISIBLE:

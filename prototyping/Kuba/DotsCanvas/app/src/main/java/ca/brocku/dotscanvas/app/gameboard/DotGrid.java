@@ -35,7 +35,7 @@ public class DotGrid implements Iterable<Dot> {
      * @return a new iterator for this dot grid
      */
     @Override
-    public DotGridIterator iterator() {
+    public Iterator<Dot> iterator() {
         return new DotGridIterator();
     }
 
