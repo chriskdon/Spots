@@ -160,6 +160,7 @@ public class GameThread extends Thread {
                         mSurfaceHolder.wait();
                     } catch (InterruptedException e) {
                     }
+
                 }
             }
         }
@@ -301,26 +302,27 @@ public class GameThread extends Thread {
 
     public boolean onTouch(MotionEvent motionEvent) {
         synchronized (mSurfaceHolder) {
-            float x = motionEvent.getX();
-            float y = motionEvent.getY();
+            if (!mBlock) {
+                float x = motionEvent.getX();
+                float y = motionEvent.getY();
 
-            switch (motionEvent.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    onTouchDown(x, y, motionEvent);
-                    break;
-                case MotionEvent.ACTION_UP:
-                    onTouchUp(x, y, motionEvent);
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    onTouchMove(x, y, motionEvent);
-                    break;
-                case MotionEvent.ACTION_OUTSIDE:
-                    onTouchOutside(x, y, motionEvent);
-                    break;
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        onTouchDown(x, y, motionEvent);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        onTouchUp(x, y, motionEvent);
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        onTouchMove(x, y, motionEvent);
+                        break;
+                    case MotionEvent.ACTION_OUTSIDE:
+                        onTouchOutside(x, y, motionEvent);
+                        break;
+                }
             }
-
-            return true;
         }
+        return true;
     }
 
     private void onTouchDown(float x, float y, MotionEvent motionEvent) {
