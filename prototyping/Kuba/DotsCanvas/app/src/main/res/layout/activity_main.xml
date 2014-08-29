@@ -1,38 +1,47 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center_horizontal"
     android:background="@color/background"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
     tools:context="ca.brocku.dotscanvas.app.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="0"
-        android:textColor="@color/text"
-        android:id="@+id/score_textView"/>
+        android:orientation="vertical"
+        android:gravity="center">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="15"
-        android:textColor="@color/text"
-        android:id="@+id/missed_textView"/>
+        <TextView
+            android:id="@+id/score_textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textColor="@color/text" />
 
-    <ca.brocku.dotscanvas.app.GameSurfaceView
-        android:layout_width="320dp"
-        android:layout_height="320dp"
-        android:id="@+id/game_surfaceView"/>
+        <TextView
+            android:id="@+id/missed_textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="15"
+            android:textColor="@color/text" />
 
+        <ca.brocku.dotscanvas.app.GameSurfaceView
+            android:id="@+id/game_surfaceView"
+            android:layout_width="320dp"
+            android:layout_height="320dp" />
+    </LinearLayout>
 
-    <ca.brocku.dotscanvas.app.views.SVGImageButton
+    <ImageButton
         android:id="@+id/btn_Pause"
         android:layout_width="80dp"
         android:layout_height="80dp"
+        android:layout_alignParentBottom="true"
         android:layout_marginTop="40dp"
-        app:normal_asset_filename="@string/svg_pause_normal"
-        app:touch_asset_filename="@string/svg_pause_touch" />
-</LinearLayout>
+        android:layout_marginBottom="72dp"
+        android:layout_centerHorizontal="true"
+        android:background="@null"
+        android:src="@drawable/button_pause"/>
+
+</RelativeLayout>
