@@ -74,6 +74,10 @@ public class Dot {
         return stateStartTime;
     }
 
+    public void increaseStateStartTime(long time) {
+        stateStartTime += time;
+    }
+
     public long getStateDuration() {
         return System.currentTimeMillis() - stateStartTime;
     }

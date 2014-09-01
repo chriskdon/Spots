@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RadialGradient;
+import android.graphics.Shader;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -59,6 +61,8 @@ public class GameThread extends Thread {
 
     private int mScore;
     private int mMissedDots;
+
+    private long mTimePausedLast;
 
     // Game Loop
     private final static int MAX_FPS = 60;                  // Desired fps
@@ -199,6 +203,7 @@ public class GameThread extends Thread {
     public void onPause() {
         synchronized (mSurfaceHolder) {
             mBlock = true;
+            mTimePausedLast = System.currentTimeMillis();
         }
     }
 
@@ -209,6 +214,12 @@ public class GameThread extends Thread {
         synchronized (mSurfaceHolder) {
             mBlock = false;
             mSurfaceHolder.notifyAll();
+
+            //Update each visible dot with the time we were paused for
+            long timePaused = System.currentTimeMillis() - mTimePausedLast;
+            for(Dot dot: mDotGrid) {
+                if (dot.isVisible()) dot.increaseStateStartTime(timePaused);
+            }
         }
     }
 
@@ -463,6 +474,7 @@ public class GameThread extends Thread {
                         updateMissedByOne();
                         if (mMissedDots >= DOTS_TO_MISS) {
                             mRun = false;
+                            mGameOver = true;
                         }
                     }
                     break;
@@ -498,12 +510,20 @@ public class GameThread extends Thread {
 
         //Draw dots
         for (Dot dot : mDotGrid) {
+            //Draw dot placeholders
             Paint invisibleDotPaint = new Paint(paint);
             invisibleDotPaint.setColor(Color.rgb(77, 77, 77));
             canvas.drawCircle(dot.getCenterX(), dot.getCenterY(), mDotRadius * 0.75f, invisibleDotPaint);
 
+            //Paint for the Dots' shadows
+            Paint shadowPaint = new Paint(paint);
+            shadowPaint.setColor(Color.rgb(77, 77, 77));
+            //shadowPaint.setAlpha(255/2);
+
             switch (dot.getState()) {
                 case VISIBLE:
+                    shadowPaint.setShader(new RadialGradient(dot.getCenterX(), dot.getCenterY()+mDotRadius*2f*0.15f, mDotRadius, mContext.getResources().getColor(R.color.black), mContext.getResources().getColor(R.color.background), Shader.TileMode.MIRROR));
+                    canvas.drawCircle(dot.getCenterX(), dot.getCenterY()+mDotRadius*2f*0.15f, mDotRadius, shadowPaint);
                     canvas.drawCircle(dot.getCenterX(), dot.getCenterY(), mDotRadius, paint);
                     break;
                 case DISAPPEARING:
@@ -515,6 +535,8 @@ public class GameThread extends Thread {
                     Paint dPaint = new Paint(paint);
                     dPaint.setAlpha((int) (255 * dFactor));
 
+                    shadowPaint.setShader(new RadialGradient(dot.getCenterX(), dot.getCenterY()+dRadius*2f*0.15f, dRadius, mContext.getResources().getColor(R.color.black), mContext.getResources().getColor(R.color.background), Shader.TileMode.MIRROR));
+                    canvas.drawCircle(dot.getCenterX(), dot.getCenterY()+dRadius*2f*0.15f, dRadius, shadowPaint);
                     canvas.drawCircle(dot.getCenterX(), dot.getCenterY(), dRadius, dPaint);
                     break;
                 case APPEARING:
@@ -527,6 +549,8 @@ public class GameThread extends Thread {
                     aPaint.set(paint);
                     aPaint.setAlpha((int) (255 * aFactor));
 
+                    shadowPaint.setShader(new RadialGradient(dot.getCenterX(), dot.getCenterY()+aRadius*2f*0.15f, aRadius, mContext.getResources().getColor(R.color.black), mContext.getResources().getColor(R.color.background), Shader.TileMode.MIRROR));
+                    canvas.drawCircle(dot.getCenterX(), dot.getCenterY()+aRadius*2f*0.15f, aRadius, shadowPaint);
                     canvas.drawCircle(dot.getCenterX(), dot.getCenterY(), aRadius, aPaint);
                     break;
             }
