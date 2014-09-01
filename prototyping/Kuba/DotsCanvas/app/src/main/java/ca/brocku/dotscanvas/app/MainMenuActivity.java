@@ -7,9 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-
-import ca.brocku.dotscanvas.app.R;
-import ca.brocku.dotscanvas.app.views.SVGImageButton;
+import android.widget.ImageButton;
 
 public class MainMenuActivity extends ActionBarActivity {
 
@@ -18,14 +16,12 @@ public class MainMenuActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
 
-        SVGImageButton lifeButton = (SVGImageButton)findViewById(R.id.btn_StartLifeGame);
+        ImageButton lifeButton = (ImageButton)findViewById(R.id.btn_StartLifeGame);
 
-        lifeButton.setOnTouchListener(new View.OnTouchListener() {
+        lifeButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void onClick(View v) {
                 startActivity(new Intent(MainMenuActivity.this, MainActivity.class));
-
-                return false;
             }
         });
     }

@@ -3,6 +3,9 @@
     <string name="svg_pause_normal">pause-01.svg</string>
     <string name="svg_pause_touch">pause-02.svg</string>
 
+    <string name="svg_play_normal">play-01.svg</string>
+    <string name="svg_play_touch">play-02.svg</string>
+
     <string name="svg_title_path">SPOTS_Title.svg</string>
 
     <string name="svg_timedButton_normal_path">TimedButton_Normal.svg</string>

@@ -1,21 +1,21 @@
 package ca.brocku.dotscanvas.app;
 
+import android.app.ActionBar;
+import android.app.Dialog;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import ca.brocku.dotscanvas.app.views.SVGImageButton;
 
 public class MainActivity extends ActionBarActivity {
     private GameSurfaceView mGameSurfaceView;
     private TextView mScoreTextView, mMissedTextView;
-    private SVGImageButton mPauseButton;
+    private ImageButton mPauseButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,18 +27,18 @@ public class MainActivity extends ActionBarActivity {
         mGameSurfaceView = (GameSurfaceView) findViewById(R.id.game_surfaceView);
         mScoreTextView = (TextView) findViewById(R.id.score_textView);
         mMissedTextView = (TextView) findViewById(R.id.missed_textView);
-        mPauseButton = (SVGImageButton)findViewById(R.id.btn_Pause);
+        mPauseButton = (ImageButton)findViewById(R.id.btn_Pause);
 
         mGameSurfaceView.setScoreView(mScoreTextView);
         mGameSurfaceView.setMissedView(mMissedTextView);
         mPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(MainActivity.this, "Paused", Toast.LENGTH_SHORT).show();
                 mGameSurfaceView.onPauseGame();
                 //TODO display pause menu
             }
         });
+
     }
 
     @Override
@@ -60,6 +60,7 @@ public class MainActivity extends ActionBarActivity {
     protected void onPause() {
         Log.e("MainActivity", "onPause");
         super.onPause();
+
         mGameSurfaceView.onPauseGame(); // pause game when Activity pauses
         //TODO display pause menu
     }

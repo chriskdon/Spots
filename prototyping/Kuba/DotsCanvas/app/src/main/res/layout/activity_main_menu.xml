@@ -18,33 +18,28 @@
         android:layout_marginBottom="20dp"
         android:padding="30dp">
 
-        <ca.brocku.dotscanvas.app.views.SVGImageView
+        <ImageView
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            app:asset_filename="@string/svg_title_path" />
+            android:background="@null"
+            android:src="@drawable/title" />
     </LinearLayout>
 
-    <ca.brocku.dotscanvas.app.views.SVGImageButton
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginBottom="20dp"
-        app:normal_asset_filename="@string/svg_timedButton_normal_path"
-        app:touch_asset_filename="@string/svg_timedButton_touched_path" />
+        android:background="@null"
+        android:src="@drawable/button_timed_game" />
 
-    <ca.brocku.dotscanvas.app.views.SVGImageButton
+    <ImageButton
         android:id="@+id/btn_StartLifeGame"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginBottom="60dp"
-        app:normal_asset_filename="@string/svg_lifeButton_normal_path"
-        app:touch_asset_filename="@string/svg_lifeButton_touched_path" />
+        android:background="@null"
+        android:src="@drawable/button_life_game" />
 
-    <ca.brocku.dotscanvas.app.views.SVGImageButton
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_gravity="center"
-        app:normal_asset_filename="@string/svg_settingsButton_normal_path"
-        app:touch_asset_filename="@string/svg_settingsButton_touched_path" />
 </LinearLayout>
