@@ -12,10 +12,16 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.concurrent.Callable;
+
+import ca.brocku.dotscanvas.app.core.Callback;
+import ca.brocku.dotscanvas.app.views.PauseDialog;
+
 public class MainActivity extends ActionBarActivity {
     private GameSurfaceView mGameSurfaceView;
     private TextView mScoreTextView, mMissedTextView;
     private ImageButton mPauseButton;
+    private PauseDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,11 +37,22 @@ public class MainActivity extends ActionBarActivity {
 
         mGameSurfaceView.setScoreView(mScoreTextView);
         mGameSurfaceView.setMissedView(mMissedTextView);
+
+        dialog = new PauseDialog(MainActivity.this);
+
+        dialog.setOnResumeClickHandler(new Callback() {
+            @Override
+            public void call() {
+                dialog.hide();
+                onResume();
+            }
+        });
+
         mPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mGameSurfaceView.onPauseGame();
-                //TODO display pause menu
+                dialog.show();
             }
         });
 

@@ -6,10 +6,17 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.ImageButton;
+
+import java.util.concurrent.Callable;
 
 import ca.brocku.dotscanvas.app.R;
+import ca.brocku.dotscanvas.app.core.Callback;
 
 /**
  * Author: Chris Kellendonk
@@ -17,6 +24,8 @@ import ca.brocku.dotscanvas.app.R;
  * Date: 2014-08-26
  */
 public class PauseDialog extends Dialog {
+    private Callback onResumeClickHandler, onQuitClickHandler, onRestartClickHandler;
+
     /**
      * Create a Dialog window that uses the default dialog frame style.
      *
@@ -28,9 +37,26 @@ public class PauseDialog extends Dialog {
         super(context);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.pause_menu);
+        View view = LayoutInflater.from(context).inflate(R.layout.pause_menu, null);
+        setContentView(view);
 
-        initViewLocation();
+        view.findViewById(R.id.btn_play).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    onResumeClickHandler.call();
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+
+
+            initViewLocation();
+        }
+
+    public void setOnResumeClickHandler(Callback onResumeClickHandler) {
+        this.onResumeClickHandler = onResumeClickHandler;
     }
 
     /**
@@ -48,7 +74,7 @@ public class PauseDialog extends Dialog {
         params.height = displayMetrics.heightPixels - 300;
         params.gravity = Gravity.TOP | Gravity.LEFT;
 
-        getWindow().setBackgroundDrawable(new ColorDrawable(android.R.color.transparent));
+        //getWindow().setBackgroundDrawable(new ColorDrawable(android.R.color.transparent));
         getWindow().setWindowAnimations(R.style.DialogNoAnimation);
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         getWindow().setAttributes(params);
