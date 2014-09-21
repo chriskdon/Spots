@@ -65,7 +65,7 @@ public class GameThread extends Thread {
     private long mTimePausedLast;
 
     // Game Loop
-    private final static int MAX_FPS = 60;                  // Desired fps
+    private final static int MAX_FPS = 30;                  // Desired fps
     private final static int MAX_FRAME_SKIPS = 5;           // Maximum number of frames to be skipped
     private final static int FRAME_PERIOD = 1000 / MAX_FPS; // The frame period
 
