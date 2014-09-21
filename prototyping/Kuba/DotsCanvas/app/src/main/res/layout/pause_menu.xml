@@ -13,8 +13,8 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="10pt"
-        android:background="@null"
         android:scaleType="fitXY"
+        android:background="@null"
         android:src="@drawable/button_play" />
 
 </RelativeLayout>
