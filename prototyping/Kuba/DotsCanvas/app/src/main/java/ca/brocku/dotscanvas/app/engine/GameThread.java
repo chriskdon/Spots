@@ -469,7 +469,9 @@ public class GameThread extends Thread {
 
             switch (dot.getState()) {
                 case VISIBLE:
-                    if (stateDuration > DURATION_VISIBLE) {
+                    //Don't start hiding the dot if it's part of a chain. Otherwise, hide it if it's
+                    //reached the visible time limit.
+                    if (!mDotChain.contains(dot) && stateDuration > DURATION_VISIBLE) {
                         dot.setState(DotState.DISAPPEARING);
                         updateMissedByOne();
                         if (mMissedDots >= DOTS_TO_MISS) {
