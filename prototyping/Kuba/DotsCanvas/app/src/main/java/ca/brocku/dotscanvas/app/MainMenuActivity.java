@@ -3,13 +3,18 @@ package ca.brocku.dotscanvas.app;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.transition.Fade;
+import android.transition.Transition;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 
 public class MainMenuActivity extends ActionBarActivity {
+    FrameLayout dim_overlay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,15 +22,15 @@ public class MainMenuActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main_menu);
 
         ImageButton lifeButton = (ImageButton)findViewById(R.id.btn_StartLifeGame);
+        dim_overlay = (FrameLayout) findViewById(R.id.dim_overlay);
 
         lifeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainMenuActivity.this, MainActivity.class));
+                MainMenuActivity.this.startActivity(new Intent(MainMenuActivity.this, MainActivity.class));
             }
         });
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -44,5 +49,27 @@ public class MainMenuActivity extends ActionBarActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        dimActivity(false);
+        super.onResume();
+    }
+
+    @Override
+    public void startActivity(Intent intent) {
+        dimActivity(true);
+        super.startActivity(intent);
+    }
+
+    /** Toggle the overlay for the activity.
+     *
+     * Used when starting/returning from other activities.
+     *
+     */
+    private void dimActivity(boolean shouldDim) {
+        int visibility = shouldDim ? View.VISIBLE : View.INVISIBLE;
+        dim_overlay.setVisibility(visibility);
     }
 }
