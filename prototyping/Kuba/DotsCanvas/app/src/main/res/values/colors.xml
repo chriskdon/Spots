@@ -5,4 +5,5 @@
     <color name="grey_light">#4D4D4D</color>
 
     <color name="black">#000000</color>
+    <color name="transluscent_black">#55222222</color>
 </resources>
