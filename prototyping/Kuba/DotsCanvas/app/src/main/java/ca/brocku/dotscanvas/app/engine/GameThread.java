@@ -469,10 +469,11 @@ public class GameThread extends Thread {
             long stateDuration = dot.getStateDuration();
 
             switch (dot.getState()) {
+                case SELECTED:
+                    // Hold this state while the dot is selected
+                    break;
                 case VISIBLE:
-                    // Hide the dot if it's part of a chain and if it has reached the visible time
-                    // limit.
-                    if (!mDotChain.contains(dot) && stateDuration > DURATION_VISIBLE) {
+                    if (stateDuration > DURATION_VISIBLE) {
                         dot.setState(DotState.DISAPPEARING);
                         updateMissedByOne();
                         if (mMissedDots >= DOTS_TO_MISS) {
