@@ -343,8 +343,7 @@ public class GameThread extends Thread {
 
         for (Dot dot : mDotGrid) {
             if (dot.isVisible() && isTouchWithinDot(x, y, dot, 1.4f)) {
-                mDotChain.push(dot);
-                //TODO animate dot
+                addDotToChain(dot);
                 break;
             }
         }
@@ -362,7 +361,6 @@ public class GameThread extends Thread {
             dot.setState(DotState.DISAPPEARING);
         }
         mDotChain.clear();
-
         mInteracting = false;
     }
 
@@ -375,9 +373,7 @@ public class GameThread extends Thread {
             for (Dot dot : mDotGrid) {
                 if (dot.isVisible() && isTouchWithinDot(x, y, dot, 1)) {
                     if (!mDotChain.contains(dot) && isDotAdjacent(dot)) {
-                        mDotChain.push(dot);
-                        //TODO animate dot
-
+                        addDotToChain(dot);
                     }
                     break;
                 }
@@ -449,6 +445,11 @@ public class GameThread extends Thread {
         return false;
     }
 
+    private void addDotToChain(Dot dot) {
+        mDotChain.push(dot);
+        dot.setState(DotState.SELECTED);
+    }
+
     private void updateScore() {
         if (!mDotChain.isEmpty()) {
             mScore += Math.pow(mDotChain.size(), 2);
@@ -469,8 +470,8 @@ public class GameThread extends Thread {
 
             switch (dot.getState()) {
                 case VISIBLE:
-                    //Don't start hiding the dot if it's part of a chain. Otherwise, hide it if it's
-                    //reached the visible time limit.
+                    // Hide the dot if it's part of a chain and if it has reached the visible time
+                    // limit.
                     if (!mDotChain.contains(dot) && stateDuration > DURATION_VISIBLE) {
                         dot.setState(DotState.DISAPPEARING);
                         updateMissedByOne();
@@ -527,6 +528,9 @@ public class GameThread extends Thread {
                     shadowPaint.setShader(new RadialGradient(dot.getCenterX(), dot.getCenterY()+mDotRadius*2f*0.15f, mDotRadius, mContext.getResources().getColor(R.color.black), mContext.getResources().getColor(R.color.background), Shader.TileMode.MIRROR));
                     canvas.drawCircle(dot.getCenterX(), dot.getCenterY()+mDotRadius*2f*0.15f, mDotRadius, shadowPaint);
                     canvas.drawCircle(dot.getCenterX(), dot.getCenterY(), mDotRadius, paint);
+                    break;
+                case SELECTED:
+                    canvas.drawCircle(dot.getCenterX(), dot.getCenterY(), mDotRadius*1.15f, paint);
                     break;
                 case DISAPPEARING:
                     //Determine how far into the animation we are
