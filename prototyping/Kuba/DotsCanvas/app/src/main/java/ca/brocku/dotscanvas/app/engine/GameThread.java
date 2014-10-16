@@ -11,6 +11,11 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Stack;
 
@@ -24,9 +29,9 @@ import ca.brocku.dotscanvas.app.gameboard.DotState;
 /**
  * This is the Thread which draws to the Canvas.
  */
-public class GameThread extends Thread {
+public class GameThread extends Thread implements Serializable {
     //Strings used for storing the game state
-    public static final String GAME_STATE_FILENAME = "GAME_STATE";
+    public static final String GAME_STATE_FILENAME = "game-state.ser";
 
     private static final int GRID_LENGTH = 6;
     private static final int NUMBER_OF_DOTS = 36;
@@ -35,10 +40,10 @@ public class GameThread extends Thread {
     private static final long DURATION_VISIBILITY_ANIMATION = 100; //time to appear/disappear
     private static final long DURATION_VISIBLE = 2000; //time for which dot stays visible
 
-    private SurfaceHolder mSurfaceHolder;
-    private Context mContext;
-    private ScoreViewHandler mScoreViewHandler;
-    private MissedViewHandler mMissedViewHandler;
+    private transient SurfaceHolder mSurfaceHolder;
+    private transient Context mContext;
+    private transient ScoreViewHandler mScoreViewHandler;
+    private transient MissedViewHandler mMissedViewHandler;
 
     private int mCanvasHeight = 1;
     private int mCanvasWidth = 1;
@@ -227,30 +232,28 @@ public class GameThread extends Thread {
         Log.e("THREAD", "saveState");
         synchronized (mSurfaceHolder) {
             if (!mGameOver && !mQuitRequested) {
-                SharedPreferences.Editor editor =
-                        mContext.getSharedPreferences(GAME_STATE_FILENAME, Context.MODE_PRIVATE).edit();
+                mBlock = true;
+//                SharedPreferences.Editor editor =
+//                        mContext.getSharedPreferences(GAME_STATE_FILENAME, Context.MODE_PRIVATE).edit();
 
                 //List of variables to store
                 //TODO: save all values
 //                    editor
 //                            .putInt(GAME_COUNTER, counter)
 //                            .commit();
+
+                try {
+                    FileOutputStream fileOut = new FileOutputStream(mContext.getFilesDir().getPath().toString()+GAME_STATE_FILENAME);
+                    ObjectOutputStream out = new ObjectOutputStream(fileOut);
+                    out.writeObject(this);
+                    out.close();
+                    fileOut.close();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        }
-    }
-
-    public void restoreState() {
-        Log.e("THREAD", "restoreState");
-        synchronized (mSurfaceHolder) {
-            SharedPreferences sharedPreferences =
-                    mContext.getSharedPreferences(GAME_STATE_FILENAME, Context.MODE_PRIVATE);
-
-            //List of variables to restore
-//                counter = sharedPreferences.getInt(GAME_COUNTER, 0);
-            //TODO: restore all values
-
-            //Clear the loaded state
-            clearState();
         }
     }
 
@@ -589,5 +592,18 @@ public class GameThread extends Thread {
             float startY = lastDot.getCenterY();
             canvas.drawLine(startX, startY, mChainingLineX, mChainingLineY, paint);
         }
+    }
+
+    public void setContext(Context context) {
+        this.mContext = context;
+    }
+
+    public void setHandlers(ScoreViewHandler scoreViewHandler, MissedViewHandler missedViewHandler) {
+        this.mScoreViewHandler = scoreViewHandler;
+        this.mMissedViewHandler = missedViewHandler;
+    }
+
+    public void setSurfaceHolder(SurfaceHolder surfaceHolder) {
+        this.mSurfaceHolder = surfaceHolder;
     }
 }

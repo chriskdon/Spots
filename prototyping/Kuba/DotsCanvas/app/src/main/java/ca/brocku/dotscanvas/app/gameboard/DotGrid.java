@@ -1,12 +1,13 @@
 package ca.brocku.dotscanvas.app.gameboard;
 
+import java.io.Serializable;
 import java.util.Iterator;
 
 /**
  * @author Jakub Subczynski
  * @date June 04, 2014
  */
-public class DotGrid implements Iterable<Dot> {
+public class DotGrid implements Iterable<Dot>, Serializable {
     private final int GRID_LENGTH;
     private final int NUMBER_OF_DOTS;
 

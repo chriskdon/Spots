@@ -1,5 +1,6 @@
 package ca.brocku.dotscanvas.app.views;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
@@ -15,6 +16,7 @@ import android.widget.ImageButton;
 
 import java.util.concurrent.Callable;
 
+import ca.brocku.dotscanvas.app.MainActivity;
 import ca.brocku.dotscanvas.app.R;
 import ca.brocku.dotscanvas.app.core.Callback;
 
@@ -25,6 +27,7 @@ import ca.brocku.dotscanvas.app.core.Callback;
  */
 public class PauseDialog extends Dialog {
     private Callback onResumeClickHandler, onQuitClickHandler, onRestartClickHandler;
+    private Context mContext;
 
     /**
      * Create a Dialog window that uses the default dialog frame style.
@@ -35,6 +38,8 @@ public class PauseDialog extends Dialog {
      */
     public PauseDialog(Context context) {
         super(context);
+
+        mContext = context;
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         View view = LayoutInflater.from(context).inflate(R.layout.pause_menu, null);
@@ -78,6 +83,14 @@ public class PauseDialog extends Dialog {
         getWindow().setWindowAnimations(R.style.DialogNoAnimation);
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         getWindow().setAttributes(params);
+    }
+
+    /**
+     * Make the activity that opened this dialog handle the back press.
+     */
+    @Override
+    public void onBackPressed() {
+        ((Activity)mContext).onBackPressed();
     }
 }
 

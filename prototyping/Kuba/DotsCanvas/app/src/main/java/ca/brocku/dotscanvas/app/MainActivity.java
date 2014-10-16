@@ -43,16 +43,14 @@ public class MainActivity extends ActionBarActivity {
         dialog.setOnResumeClickHandler(new Callback() {
             @Override
             public void call() {
-                dialog.hide();
-                onResume();
+                hideDialogAndResumeGame();
             }
         });
 
         mPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mGameSurfaceView.onPauseGame();
-                dialog.show();
+                showDialogAndPauseGame();
             }
         });
 
@@ -79,28 +77,36 @@ public class MainActivity extends ActionBarActivity {
         super.onPause();
 
         mGameSurfaceView.onPauseGame(); // pause game when Activity pauses
-        //TODO display pause menu
+        dialog.show();
     }
 
     @Override
     protected void onResume() {
         Log.e("MainActivity", "onResume");
         super.onResume();
-        //TODO remove the following onResumeGame() as pause menu will be present
-        mGameSurfaceView.onResumeGame(); //resume game when Activity resumes
     }
 
     @Override
     public void onBackPressed() {
         if(mGameSurfaceView.isGamePaused()) {
-            //TODO hide pause menu
-            Toast.makeText(MainActivity.this, "Resumed", Toast.LENGTH_SHORT).show();
-            mGameSurfaceView.onResumeGame();
+            hideDialogAndResumeGame();
         } else {
-            //TODO display pause menu
-            mGameSurfaceView.onPauseGame();
-            Toast.makeText(MainActivity.this, "Paused", Toast.LENGTH_SHORT).show();
+            showDialogAndPauseGame();
         }
+    }
+
+    public void hideDialogAndResumeGame() {
+        dialog.hide();
+        mGameSurfaceView.onResumeGame();
+    }
+
+    public void showDialogAndPauseGame() {
+        dialog.show();
+        mGameSurfaceView.onPauseGame();
+    }
+
+    public boolean isDialogVisible() {
+        return dialog.isShowing();
     }
 }
 

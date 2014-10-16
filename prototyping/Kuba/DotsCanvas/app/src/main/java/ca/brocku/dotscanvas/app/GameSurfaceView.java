@@ -11,6 +11,12 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
 import ca.brocku.dotscanvas.app.engine.GameThread;
 import ca.brocku.dotscanvas.app.engine.Handlers.MissedViewHandler;
 import ca.brocku.dotscanvas.app.engine.Handlers.ScoreViewHandler;
@@ -36,9 +42,10 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             mContext = context;
 
             //Clear any saved game state
-            SharedPreferences.Editor editor =
-                    mContext.getSharedPreferences(GameThread.GAME_STATE_FILENAME, Context.MODE_PRIVATE).edit();
-            editor.clear().commit();
+//            SharedPreferences.Editor editor =
+//                    mContext.getSharedPreferences(GameThread.GAME_STATE_FILENAME, Context.MODE_PRIVATE).edit();
+//            editor.clear().commit();
+            clearState();
         }
     }
 
@@ -55,11 +62,52 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
         Log.e("Thread", "surfaceCreated()");
-        thread = new GameThread(surfaceHolder, mContext,
-                new ScoreViewHandler(mScoreView), new MissedViewHandler(mMissedView));
 
-        thread.restoreState();
+        if (new File(mContext.getFilesDir().getPath().toString()+GameThread.GAME_STATE_FILENAME).exists()) {
+            restoreGameState();
+            if(!((MainActivity)mContext).isDialogVisible()) {
+                thread.onResume();
+            }
+        } else {
+            thread = new GameThread(surfaceHolder, mContext,
+                    new ScoreViewHandler(mScoreView), new MissedViewHandler(mMissedView));
+        }
+
         thread.start();
+    }
+
+    public void restoreGameState() {
+        Log.e("THREAD", "restoreState");
+        synchronized (getHolder()) {
+            FileInputStream fileIn = null;
+            try {
+                fileIn = new FileInputStream(mContext.getFilesDir().getPath().toString()+GameThread.GAME_STATE_FILENAME);
+                ObjectInputStream in = new ObjectInputStream(fileIn);
+                thread = (GameThread)in.readObject();
+                in.close();
+                fileIn.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            if (thread != null) {
+               thread.setContext(mContext);
+               thread.setHandlers(new ScoreViewHandler(mScoreView), new MissedViewHandler(mMissedView));
+               thread.setSurfaceHolder(getHolder());
+            }
+
+
+            clearState();
+        }
+    }
+
+    public void clearState() {
+        //Clear the loaded state
+        new File(mContext.getFilesDir().getPath().toString()+GameThread.GAME_STATE_FILENAME).delete();
     }
 
     /**
@@ -113,6 +161,9 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         }
     }
 
+    /**
+     * Start the game thread if it has not been started yet.
+     */
     public void onResumeGame() {
         if (thread != null) {
             thread.onResume();
