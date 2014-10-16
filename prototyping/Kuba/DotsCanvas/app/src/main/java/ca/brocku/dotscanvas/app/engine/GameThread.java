@@ -233,14 +233,6 @@ public class GameThread extends Thread implements Serializable {
         synchronized (mSurfaceHolder) {
             if (!mGameOver && !mQuitRequested) {
                 mBlock = true;
-//                SharedPreferences.Editor editor =
-//                        mContext.getSharedPreferences(GAME_STATE_FILENAME, Context.MODE_PRIVATE).edit();
-
-                //List of variables to store
-                //TODO: save all values
-//                    editor
-//                            .putInt(GAME_COUNTER, counter)
-//                            .commit();
 
                 try {
                     FileOutputStream fileOut = new FileOutputStream(mContext.getFilesDir().getPath().toString()+GAME_STATE_FILENAME);
@@ -254,17 +246,6 @@ public class GameThread extends Thread implements Serializable {
                     e.printStackTrace();
                 }
             }
-        }
-    }
-
-    public void clearState() {
-        Log.e("THREAD", "clearState");
-        synchronized (mSurfaceHolder) {
-            SharedPreferences.Editor editor =
-                    mContext.getSharedPreferences(GAME_STATE_FILENAME, Context.MODE_PRIVATE).edit();
-
-            //Clear the saved game state
-            editor.clear().commit();
         }
     }
 

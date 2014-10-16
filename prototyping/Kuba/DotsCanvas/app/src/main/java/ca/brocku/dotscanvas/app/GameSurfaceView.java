@@ -42,9 +42,6 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             mContext = context;
 
             //Clear any saved game state
-//            SharedPreferences.Editor editor =
-//                    mContext.getSharedPreferences(GameThread.GAME_STATE_FILENAME, Context.MODE_PRIVATE).edit();
-//            editor.clear().commit();
             clearState();
         }
     }
