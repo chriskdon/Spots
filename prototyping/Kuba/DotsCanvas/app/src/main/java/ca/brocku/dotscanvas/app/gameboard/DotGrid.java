@@ -1,7 +1,11 @@
 package ca.brocku.dotscanvas.app.gameboard;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Random;
+import java.util.Stack;
 
 /**
  * DotGrid is essentially the game board. It is essentially a 2D array that holds the dots.
@@ -41,12 +45,112 @@ public class DotGrid implements Iterable<Dot>, Serializable {
     /**
      * Calculate the index of a dot in the grid.
      *
-     * @param dot
-     * @return
+     * @param dot the index of this dot will be calculated
+     * @return the index of the dot
      */
     public int getIndex(Dot dot) {
         return GRID_LENGTH * dot.getRow() + dot.getCol();
     }
+
+    /**
+     * The size of a cluster that is adjacent to the passed, invisible dot is calculated. This dot
+     * may be a bridge for disjointed clusters, so one of the adjacent dots are randomly selected.
+     *
+     * @param dot an invisible dot that may be adjacent to a cluster
+     * @return the size of a cluster
+     */
+    public int clusterSizeFor(Dot dot) {
+        int count = 0;
+        Stack<Dot> stack = new Stack<Dot>(); //dots to consider
+        HashSet<Dot> considered = new HashSet<Dot>();
+        Dot currentDot;
+
+        // Push a dot that is adjacent to this dot and is part of a cluster
+        ArrayList<Dot> initialAdjDots = getAdjacentVisibleDots(dot);
+        if (!initialAdjDots.isEmpty()) {
+            Dot randomAdjDot = initialAdjDots.get((int) (Math.random()*initialAdjDots.size()));
+            stack.push(randomAdjDot);
+        }
+
+        while(!stack.isEmpty()) {
+            currentDot = stack.pop();
+
+            if(!considered.contains(currentDot)) {
+                considered.add(currentDot);
+                count++;
+                
+                ArrayList<Dot> adjacentDots = getAdjacentVisibleDots(currentDot);
+                for(Dot adjDot: adjacentDots) stack.push(adjDot);
+            }
+        }
+
+        return count;
+    }
+
+    /**
+     * Returns the dots that are both adjacent to the specified dot and not invisible. Handles
+     * OutOfBounds locations.
+     *
+     * @param dot adjacent dots will be determined for this dot
+     * @return an ArrayList of 0 to 4 adjacent dots
+     */
+    private ArrayList<Dot> getAdjacentVisibleDots(Dot dot) {
+        ArrayList<Dot> adjDotList = new ArrayList<Dot>();
+        Dot[] adjDots = new Dot[4];
+
+        adjDots[0] = getUp(dot);
+        adjDots[1] = getLeft(dot);
+        adjDots[2] = getDown(dot);
+        adjDots[3] = getRight(dot);
+
+        for(Dot adjDot: adjDots) {
+            if (adjDot != null && adjDot.getState() != DotState.INVISIBLE) adjDotList.add(adjDot);
+        }
+
+        return adjDotList;
+    }
+
+    private Dot getUp(Dot dot) {
+        int row = dot.getRow();
+
+        if((row-1) >= 0 && (row-1) <= GRID_LENGTH-1) {
+            return grid[row-1][dot.getCol()];
+        } else {
+            return null;
+        }
+    }
+
+    private Dot getRight(Dot dot) {
+        int col = dot.getCol();
+
+        if((col+1) >= 0 && (col+1) <= GRID_LENGTH-1) {
+            return grid[dot.getRow()][col+1];
+        } else {
+            return null;
+        }
+    }
+
+    private Dot getDown(Dot dot) {
+        int row = dot.getRow();
+
+        if((row+1) >= 0 && (row+1) <= GRID_LENGTH-1) {
+            return grid[row+1][dot.getCol()];
+        } else {
+            return null;
+        }
+    }
+
+    private Dot getLeft(Dot dot) {
+        int col = dot.getCol();
+
+        if((col-1) >= 0 && (col-1) <= GRID_LENGTH-1) {
+            return grid[dot.getRow()][col-1];
+        } else {
+            return null;
+        }
+    }
+
+
 
     private void initializeGrid() {
         int id = 1;

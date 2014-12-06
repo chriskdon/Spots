@@ -42,6 +42,7 @@ public class GameThread extends Thread implements Serializable {
 
     // Probability-calculation constants for dots to appear
     private static final long SEED_PROB_TIME_LIMIT = 10000;
+    private static final long ADJACENT_PROB_CLUSTER_LIMIT = 9;
 
     private transient SurfaceHolder mSurfaceHolder;
     private transient Context mContext;
@@ -113,11 +114,14 @@ public class GameThread extends Thread implements Serializable {
 //                dot.setState(DotState.VISIBLE);
 //            }
 
+//        int location = (int) (Math.random()*36);
+//        mDotGrid.dotAt(location).setState(DotState.APPEARING);
+
         //TODO extract to initialize board method
-//        for(int i=0; i<4; i++) {
-//            int location = (int) (Math.random()*36);
-//            mDotGrid.dotAt(location).setState(DotState.APPEARING);
-//        }
+        for(int i=0; i<4; i++) {
+            int location = (int) (Math.random()*36);
+            mDotGrid.dotAt(location).setState(DotState.APPEARING);
+        }
     }
 
     @Override
@@ -489,9 +493,7 @@ public class GameThread extends Thread implements Serializable {
                     }
                     break;
                 case INVISIBLE:
-                    if (currentSecond != mLastSecond) { //ensure probability is calculated once/sec
-                        Log.e("PROB-CALCULATED AT SEC: ", String.valueOf(currentSecond));
-
+                    if (currentSecond != mLastSecond) { //ensures probability is calculated once/sec
                         handleInvisibleState(dot);
                     }
                     break;
@@ -508,29 +510,50 @@ public class GameThread extends Thread implements Serializable {
     private void handleInvisibleState(Dot dot) {
         long timeInvisible = dot.getStateDuration();
 
-        double seedProb = calculateSeedProbability(timeInvisible);
+//        double seedProb = calculateSeedProbability(timeInvisible);
 
-        if(Math.random() < seedProb) {
+        double adjacentProb = calculateAdjacentProbability(dot);
+
+        if(Math.random() < adjacentProb) {
             dot.setState(DotState.APPEARING);
         }
 
     }
 
     /**
-     * Calculates the probability that a dot should appear due to being invisible. The probability
-     * the dot will appear increases as time invisible increases.
+     * Calculates the probability that a dot should appear based on how long it has been invisible
+     * for. The probability the dot will appear increases as time invisible increases.
      *
      * @param duration how long the dot has been invisible for
-     * @return the probability that a dot should appear
+     * @return the probability that the dot should appear
      */
     private double calculateSeedProbability(long duration) {
         double seedProb = 0;
         if (duration > SEED_PROB_TIME_LIMIT) {
-            seedProb = 0.1;
+            seedProb = 0.0;
         } else {
             seedProb = 0.00001*duration;
         }
         return seedProb;
+    }
+
+    /**
+     * Calculates the probability that a dot should appear based on how large of a dot-cluster it is
+     * in. The probability the dot will appear increases as the number of dots in the cluster
+     * increases.
+     *
+     * @param dot the dot the probability is being calculated for
+     * @return the probability that the dot should appear
+     */
+    private double calculateAdjacentProbability(Dot dot) {
+        double probability = 0;
+        int clusterSize = mDotGrid.clusterSizeFor(dot);
+        if(clusterSize > ADJACENT_PROB_CLUSTER_LIMIT || clusterSize < 1) {
+            probability = 0.0;
+        } else {
+            probability = -0.002040816 * Math.pow(clusterSize-1, 2) + 0.1;
+        }
+        return probability;
     }
 
     private void doDraw(Canvas canvas) {
