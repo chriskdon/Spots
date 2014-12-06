@@ -611,7 +611,7 @@ public class GameThread extends Thread implements Serializable {
         }
 
         //Draw lines
-        if (mInteracting) {
+        if (mInteracting && !mDotChain.isEmpty()) {
             //Draw lines between chained dots
             {
                 Iterator<Dot> iterator = mDotChain.iterator();
