@@ -4,6 +4,10 @@ import java.io.Serializable;
 import java.util.Iterator;
 
 /**
+ * DotGrid is essentially the game board. It is essentially a 2D array that holds the dots.
+ *
+ * Dots in the grid are indexed by row-by-row. 0-based indexing is used.
+ *
  * @author Jakub Subczynski
  * @date June 04, 2014
  */
@@ -19,6 +23,29 @@ public class DotGrid implements Iterable<Dot>, Serializable {
 
         this.grid = new Dot[GRID_LENGTH][GRID_LENGTH];
         initializeGrid();
+    }
+
+    /**
+     * Gets a dot from the grid at a particular index.
+     *
+     * @param index the index of the dot to retrieve
+     * @return the dot at the specified index
+     */
+    public Dot dotAt(int index) {
+        int row = index/GRID_LENGTH; //the row of the dot
+        int col = index%GRID_LENGTH; //the column of the dot
+
+        return grid[row][col];
+    }
+
+    /**
+     * Calculate the index of a dot in the grid.
+     *
+     * @param dot
+     * @return
+     */
+    public int getIndex(Dot dot) {
+        return GRID_LENGTH * dot.getRow() + dot.getCol();
     }
 
     private void initializeGrid() {

@@ -40,6 +40,9 @@ public class GameThread extends Thread implements Serializable {
     private static final long DURATION_VISIBILITY_ANIMATION = 100; //time to appear/disappear
     private static final long DURATION_VISIBLE = 2000; //time for which dot stays visible
 
+    // Probability-calculation constants for dots to appear
+    private static final long SEED_PROB_TIME_LIMIT = 10000;
+
     private transient SurfaceHolder mSurfaceHolder;
     private transient Context mContext;
     private transient ScoreViewHandler mScoreViewHandler;
@@ -69,6 +72,8 @@ public class GameThread extends Thread implements Serializable {
 
     private long mTimePausedLast;
 
+    private long mLastSecond; //the last second that calculations for dots to appear were done
+
     // Game Loop
     private final static int MAX_FPS = 30;                  // Desired fps
     private final static int MAX_FRAME_SKIPS = 5;           // Maximum number of frames to be skipped
@@ -89,13 +94,6 @@ public class GameThread extends Thread implements Serializable {
 
         mDotGrid = new DotGrid(GRID_LENGTH);
 
-        //TODO remove when dots appear randomly
-//            for(Dot dot: mDotGrid) {
-//                int random = (int) (Math.random()*3);
-//                //if(random == 1) dot.setState(DotState.APPEARING);
-//                dot.setState(DotState.VISIBLE);
-//            }
-
         mDotChain = new Stack<Dot>();
         mInteracting = false;
         mChainingLineX = 0;
@@ -103,6 +101,23 @@ public class GameThread extends Thread implements Serializable {
 
         mScore = 0;
         mMissedDots = 0;
+
+        mTimePausedLast = System.currentTimeMillis();
+
+        mLastSecond = System.currentTimeMillis() / 1000;
+
+        //TODO remove when dots appear randomly
+//            for(Dot dot: mDotGrid) {
+//                int random = (int) (Math.random()*3);
+//                //if(random == 1) dot.setState(DotState.APPEARING);
+//                dot.setState(DotState.VISIBLE);
+//            }
+
+        //TODO extract to initialize board method
+//        for(int i=0; i<4; i++) {
+//            int location = (int) (Math.random()*36);
+//            mDotGrid.dotAt(location).setState(DotState.APPEARING);
+//        }
     }
 
     @Override
@@ -118,7 +133,7 @@ public class GameThread extends Thread implements Serializable {
             try {
                 c = mSurfaceHolder.lockCanvas();
                 synchronized (mSurfaceHolder) {
-                    Log.d("MAIN LOOP", "TICK");
+//                    Log.d("MAIN LOOP", "TICK");
                     beginTime = System.currentTimeMillis();
                     framesSkipped = 0;    // resetting the frames skipped
 
@@ -449,12 +464,14 @@ public class GameThread extends Thread implements Serializable {
     }
 
     private void updateState() {
+        long currentSecond = System.currentTimeMillis() / 1000;
+
         for (Dot dot : mDotGrid) {
             long stateDuration = dot.getStateDuration();
 
             switch (dot.getState()) {
                 case SELECTED:
-                    // Hold this state while the dot is selected
+                    // Do nothing. Hold this state while the dot is selected.
                     break;
                 case VISIBLE:
                     if (stateDuration > DURATION_VISIBLE) {
@@ -471,11 +488,11 @@ public class GameThread extends Thread implements Serializable {
                         dot.setState(DotState.INVISIBLE);
                     }
                     break;
-                case INVISIBLE: //TODO make insane algorithm to determine when a dot should appear
-                    if (stateDuration > 2000) {
-                        if ((int) (Math.random() * 800) == 1) {
-                            dot.setState(DotState.APPEARING);
-                        }
+                case INVISIBLE:
+                    if (currentSecond != mLastSecond) { //ensure probability is calculated once/sec
+                        Log.e("PROB-CALCULATED AT SEC: ", String.valueOf(currentSecond));
+
+                        handleInvisibleState(dot);
                     }
                     break;
                 case APPEARING:
@@ -485,6 +502,35 @@ public class GameThread extends Thread implements Serializable {
                     break;
             }
         }
+        mLastSecond = currentSecond;
+    }
+
+    private void handleInvisibleState(Dot dot) {
+        long timeInvisible = dot.getStateDuration();
+
+        double seedProb = calculateSeedProbability(timeInvisible);
+
+        if(Math.random() < seedProb) {
+            dot.setState(DotState.APPEARING);
+        }
+
+    }
+
+    /**
+     * Calculates the probability that a dot should appear due to being invisible. The probability
+     * the dot will appear increases as time invisible increases.
+     *
+     * @param duration how long the dot has been invisible for
+     * @return the probability that a dot should appear
+     */
+    private double calculateSeedProbability(long duration) {
+        double seedProb = 0;
+        if (duration > SEED_PROB_TIME_LIMIT) {
+            seedProb = 0.1;
+        } else {
+            seedProb = 0.00001*duration;
+        }
+        return seedProb;
     }
 
     private void doDraw(Canvas canvas) {
