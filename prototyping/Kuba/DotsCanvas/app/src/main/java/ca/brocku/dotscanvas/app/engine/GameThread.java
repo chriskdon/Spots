@@ -43,8 +43,8 @@ public class GameThread extends Thread implements Serializable {
     // Probability-calculation constants for dots to appear
     private static final long SEED_PROB_TIME_LIMIT = 10000;
     private static final long ADJACENT_PROB_CLUSTER_LIMIT = 9;
-    private static final double SEED_PROB_WEIGHT = 0.7;
-    private static final double ADJACENT_PROB_WEIGHT = 0.3;
+    private static final double SEED_PROB_WEIGHT = 0.5;
+    private static final double ADJACENT_PROB_WEIGHT = 1-SEED_PROB_WEIGHT;
 
     private transient SurfaceHolder mSurfaceHolder;
     private transient Context mContext;
@@ -109,16 +109,6 @@ public class GameThread extends Thread implements Serializable {
 
         mLastSecond = System.currentTimeMillis() / 1000;
 
-        //TODO remove when dots appear randomly
-//            for(Dot dot: mDotGrid) {
-//                int random = (int) (Math.random()*3);
-//                //if(random == 1) dot.setState(DotState.APPEARING);
-//                dot.setState(DotState.VISIBLE);
-//            }
-
-//        int location = (int) (Math.random()*36);
-//        mDotGrid.dotAt(location).setState(DotState.APPEARING);
-
         //TODO extract to initialize board method
         for(int i=0; i<4; i++) {
             int location = (int) (Math.random()*36);
@@ -139,7 +129,6 @@ public class GameThread extends Thread implements Serializable {
             try {
                 c = mSurfaceHolder.lockCanvas();
                 synchronized (mSurfaceHolder) {
-//                    Log.d("MAIN LOOP", "TICK");
                     beginTime = System.currentTimeMillis();
                     framesSkipped = 0;    // resetting the frames skipped
 
@@ -342,7 +331,6 @@ public class GameThread extends Thread implements Serializable {
     }
 
     private void onTouchDown(float x, float y, MotionEvent motionEvent) {
-        Log.i("Thread", "onTouchDown()");
         mChainingLineX = x;
         mChainingLineY = y;
 
@@ -357,8 +345,6 @@ public class GameThread extends Thread implements Serializable {
     }
 
     private void onTouchUp(float x, float y, MotionEvent motionEvent) {
-        Log.i("Thread", "onTouchUp()");
-
         updateScore();
 
         //Hide all of the dots in the dot chain
@@ -370,8 +356,6 @@ public class GameThread extends Thread implements Serializable {
     }
 
     private void onTouchMove(float x, float y, MotionEvent motionEvent) {
-        Log.i("Thread", "onTouchMove()");
-
         setInteractingCoordinates(x, y);
 
         if (!mDotChain.isEmpty()) {
@@ -387,7 +371,6 @@ public class GameThread extends Thread implements Serializable {
     }
 
     private void onTouchOutside(float x, float y, MotionEvent motionEvent) {
-        Log.i("Thread", "onTouchOutside()");
         mDotChain.clear();
         mInteracting = false;
     }
@@ -520,17 +503,14 @@ public class GameThread extends Thread implements Serializable {
      * @param dot the invisible dot under consideration
      */
     private void handleInvisibleState(Dot dot) {
-        long timeInvisible = dot.getStateDuration();
-
         double seedProb = calculateSeedProbability(dot);
         double adjacentProb = calculateAdjacentProbability(dot);
 
-        double totalProb = seedProb + adjacentProb;
+        double totalProb = seedProb * SEED_PROB_WEIGHT + adjacentProb * ADJACENT_PROB_WEIGHT;
 
         if(Math.random() < totalProb) {
             dot.setState(DotState.APPEARING);
         }
-
     }
 
     /**
@@ -544,7 +524,7 @@ public class GameThread extends Thread implements Serializable {
         double probability = 0;
         long invisibleDuration = dot.getStateDuration();
         if (invisibleDuration > SEED_PROB_TIME_LIMIT) {
-            probability = 0.0;
+            probability = 0.1;
         } else {
             probability = 0.00001 * invisibleDuration;
         }
