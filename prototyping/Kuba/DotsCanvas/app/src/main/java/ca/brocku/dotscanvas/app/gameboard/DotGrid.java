@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Random;
 import java.util.Stack;
 
 /**
@@ -68,7 +67,7 @@ public class DotGrid implements Iterable<Dot>, Serializable {
         // Push a dot that is adjacent to this dot and is part of a cluster
         ArrayList<Dot> initialAdjDots = getAdjacentVisibleDots(dot);
         if (!initialAdjDots.isEmpty()) {
-            Dot randomAdjDot = initialAdjDots.get((int) (Math.random()*initialAdjDots.size()));
+            Dot randomAdjDot = initialAdjDots.get((int) (Math.random() * initialAdjDots.size()));
             stack.push(randomAdjDot);
         }
 
@@ -78,7 +77,7 @@ public class DotGrid implements Iterable<Dot>, Serializable {
             if(!considered.contains(currentDot)) {
                 considered.add(currentDot);
                 count++;
-                
+
                 ArrayList<Dot> adjacentDots = getAdjacentVisibleDots(currentDot);
                 for(Dot adjDot: adjacentDots) stack.push(adjDot);
             }
@@ -96,12 +95,16 @@ public class DotGrid implements Iterable<Dot>, Serializable {
      */
     private ArrayList<Dot> getAdjacentVisibleDots(Dot dot) {
         ArrayList<Dot> adjDotList = new ArrayList<Dot>();
-        Dot[] adjDots = new Dot[4];
+        Dot[] adjDots = new Dot[8];
 
-        adjDots[0] = getUp(dot);
-        adjDots[1] = getLeft(dot);
-        adjDots[2] = getDown(dot);
-        adjDots[3] = getRight(dot);
+        adjDots[0] = getNorth(dot);
+        adjDots[1] = getNorthEast(dot);
+        adjDots[2] = getEast(dot);
+        adjDots[3] = getSouthEast(dot);
+        adjDots[4] = getSouth(dot);
+        adjDots[5] = getSouthWest(dot);
+        adjDots[6] = getWest(dot);
+        adjDots[7] = getNorthWest(dot);
 
         for(Dot adjDot: adjDots) {
             if (adjDot != null && adjDot.getState() != DotState.INVISIBLE) adjDotList.add(adjDot);
@@ -110,7 +113,7 @@ public class DotGrid implements Iterable<Dot>, Serializable {
         return adjDotList;
     }
 
-    private Dot getUp(Dot dot) {
+    private Dot getNorth(Dot dot) {
         int row = dot.getRow();
 
         if((row-1) >= 0 && (row-1) <= GRID_LENGTH-1) {
@@ -120,7 +123,19 @@ public class DotGrid implements Iterable<Dot>, Serializable {
         }
     }
 
-    private Dot getRight(Dot dot) {
+    private Dot getNorthEast(Dot dot) {
+        int row = dot.getRow();
+        int col = dot.getCol();
+
+        if((row-1) >= 0 && (row-1) <= GRID_LENGTH-1 &&
+                (col+1) >= 0 && (col+1) <= GRID_LENGTH-1) {
+            return grid[row-1][col+1];
+        } else {
+            return null;
+        }
+    }
+
+    private Dot getEast(Dot dot) {
         int col = dot.getCol();
 
         if((col+1) >= 0 && (col+1) <= GRID_LENGTH-1) {
@@ -130,7 +145,19 @@ public class DotGrid implements Iterable<Dot>, Serializable {
         }
     }
 
-    private Dot getDown(Dot dot) {
+    private Dot getSouthEast(Dot dot) {
+        int row = dot.getRow();
+        int col = dot.getCol();
+
+        if((row+1) >= 0 && (row+1) <= GRID_LENGTH-1 &&
+                (col+1) >= 0 && (col+1) <= GRID_LENGTH-1) {
+            return grid[row+1][col+1];
+        } else {
+            return null;
+        }
+    }
+
+    private Dot getSouth(Dot dot) {
         int row = dot.getRow();
 
         if((row+1) >= 0 && (row+1) <= GRID_LENGTH-1) {
@@ -140,7 +167,19 @@ public class DotGrid implements Iterable<Dot>, Serializable {
         }
     }
 
-    private Dot getLeft(Dot dot) {
+    private Dot getSouthWest(Dot dot) {
+        int row = dot.getRow();
+        int col = dot.getCol();
+
+        if((row+1) >= 0 && (row+1) <= GRID_LENGTH-1 &&
+                (col-1) >= 0 && (col-1) <= GRID_LENGTH-1) {
+            return grid[row+1][col-1];
+        } else {
+            return null;
+        }
+    }
+
+    private Dot getWest(Dot dot) {
         int col = dot.getCol();
 
         if((col-1) >= 0 && (col-1) <= GRID_LENGTH-1) {
@@ -150,7 +189,17 @@ public class DotGrid implements Iterable<Dot>, Serializable {
         }
     }
 
+    private Dot getNorthWest(Dot dot) {
+        int row = dot.getRow();
+        int col = dot.getCol();
 
+        if((row-1) >= 0 && (row-1) <= GRID_LENGTH-1 &&
+                (col-1) >= 0 && (col-1) <= GRID_LENGTH-1) {
+            return grid[row-1][col-1];
+        } else {
+            return null;
+        }
+    }
 
     private void initializeGrid() {
         int id = 1;
