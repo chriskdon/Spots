@@ -43,6 +43,8 @@ public class GameThread extends Thread implements Serializable {
     // Probability-calculation constants for dots to appear
     private static final long SEED_PROB_TIME_LIMIT = 10000;
     private static final long ADJACENT_PROB_CLUSTER_LIMIT = 9;
+    private static final double SEED_PROB_WEIGHT = 0.7;
+    private static final double ADJACENT_PROB_WEIGHT = 0.3;
 
     private transient SurfaceHolder mSurfaceHolder;
     private transient Context mContext;
@@ -507,14 +509,25 @@ public class GameThread extends Thread implements Serializable {
         mLastSecond = currentSecond;
     }
 
+    /**
+     * Determines whether or not to make this dot begin appearing by running some probability
+     * calculations.
+     *
+     * Note: Both of the probability calculations have a maximum probability of 10%. The need to be equal
+     * for the way the current total probability calculation is set up. If they can produce
+     * different probabilities, then they will need to be normalized.
+     *
+     * @param dot the invisible dot under consideration
+     */
     private void handleInvisibleState(Dot dot) {
         long timeInvisible = dot.getStateDuration();
 
-//        double seedProb = calculateSeedProbability(timeInvisible);
-
+        double seedProb = calculateSeedProbability(dot);
         double adjacentProb = calculateAdjacentProbability(dot);
 
-        if(Math.random() < adjacentProb) {
+        double totalProb = seedProb + adjacentProb;
+
+        if(Math.random() < totalProb) {
             dot.setState(DotState.APPEARING);
         }
 
@@ -524,17 +537,18 @@ public class GameThread extends Thread implements Serializable {
      * Calculates the probability that a dot should appear based on how long it has been invisible
      * for. The probability the dot will appear increases as time invisible increases.
      *
-     * @param duration how long the dot has been invisible for
+     * @param dot the dot the probability is being calculated for
      * @return the probability that the dot should appear
      */
-    private double calculateSeedProbability(long duration) {
-        double seedProb = 0;
-        if (duration > SEED_PROB_TIME_LIMIT) {
-            seedProb = 0.0;
+    private double calculateSeedProbability(Dot dot) {
+        double probability = 0;
+        long invisibleDuration = dot.getStateDuration();
+        if (invisibleDuration > SEED_PROB_TIME_LIMIT) {
+            probability = 0.0;
         } else {
-            seedProb = 0.00001*duration;
+            probability = 0.00001 * invisibleDuration;
         }
-        return seedProb;
+        return probability;
     }
 
     /**
