@@ -456,6 +456,11 @@ public class GameThread extends Thread implements Serializable {
         long currentSecond = System.currentTimeMillis() / 1000;
 
         for (Dot dot : mDotGrid) {
+            if (mMissedDots >= DOTS_TO_MISS) {
+                mRun = false;
+                mGameOver = true;
+                break;
+            }
             long stateDuration = dot.getStateDuration();
 
             switch (dot.getState()) {
@@ -466,10 +471,6 @@ public class GameThread extends Thread implements Serializable {
                     if (stateDuration > DURATION_VISIBLE) {
                         dot.setState(DotState.DISAPPEARING);
                         updateMissedByOne();
-                        if (mMissedDots >= DOTS_TO_MISS) {
-                            mRun = false;
-                            mGameOver = true;
-                        }
                     }
                     break;
                 case DISAPPEARING:
@@ -488,6 +489,9 @@ public class GameThread extends Thread implements Serializable {
                     }
                     break;
             }
+        }
+        if (mGameOver) {
+            for (Dot dot: mDotGrid) dot.setState(DotState.INVISIBLE);
         }
         mLastSecond = currentSecond;
     }
