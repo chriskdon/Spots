@@ -438,13 +438,29 @@ public class GameThread extends Thread implements Serializable {
         dot.setState(DotState.SELECTED);
         MediaPlayer mp = MediaPlayer.create(mContext, R.raw.select);
         mp.start();
+        mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                mp.reset();
+                mp.release();
+            }
+        });
     }
 
     private void clearChain() {
-        mDotChain.clear();
+        if (!mDotChain.isEmpty()) {
+            mDotChain.clear();
+            MediaPlayer mp = MediaPlayer.create(mContext, R.raw.release);
+            mp.start();
+            mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    mp.reset();
+                    mp.release();
+                }
+            });
+        }
         mInteracting = false;
-        MediaPlayer mp = MediaPlayer.create(mContext, R.raw.release);
-        mp.start();
     }
 
     private void updateScore() {
@@ -462,6 +478,13 @@ public class GameThread extends Thread implements Serializable {
 
         MediaPlayer mp = MediaPlayer.create(mContext, R.raw.miss);
         mp.start();
+        mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                mp.reset();
+                mp.release();
+            }
+        });
     }
 
     private void updateState() {
