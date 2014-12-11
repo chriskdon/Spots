@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RadialGradient;
 import android.graphics.Shader;
+import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -351,8 +352,7 @@ public class GameThread extends Thread implements Serializable {
         for (Dot dot : mDotChain) {
             dot.setState(DotState.DISAPPEARING);
         }
-        mDotChain.clear();
-        mInteracting = false;
+        clearChain();
     }
 
     private void onTouchMove(float x, float y, MotionEvent motionEvent) {
@@ -371,9 +371,9 @@ public class GameThread extends Thread implements Serializable {
     }
 
     private void onTouchOutside(float x, float y, MotionEvent motionEvent) {
-        mDotChain.clear();
-        mInteracting = false;
+        clearChain();
     }
+
 
     private void setInteractingCoordinates(float endX, float endY) {
         if (!mDotChain.isEmpty()) {
@@ -436,6 +436,31 @@ public class GameThread extends Thread implements Serializable {
     private void addDotToChain(Dot dot) {
         mDotChain.push(dot);
         dot.setState(DotState.SELECTED);
+        MediaPlayer mp = MediaPlayer.create(mContext, R.raw.select);
+        mp.start();
+        mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                mp.reset();
+                mp.release();
+            }
+        });
+    }
+
+    private void clearChain() {
+        if (!mDotChain.isEmpty()) {
+            mDotChain.clear();
+            MediaPlayer mp = MediaPlayer.create(mContext, R.raw.release);
+            mp.start();
+            mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    mp.reset();
+                    mp.release();
+                }
+            });
+        }
+        mInteracting = false;
     }
 
     private void updateScore() {
@@ -450,6 +475,16 @@ public class GameThread extends Thread implements Serializable {
         mMissedDots++;
 
         mMissedViewHandler.updateMissedCount(DOTS_TO_MISS - mMissedDots);
+
+        MediaPlayer mp = MediaPlayer.create(mContext, R.raw.miss);
+        mp.start();
+        mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                mp.reset();
+                mp.release();
+            }
+        });
     }
 
     private void updateState() {
@@ -587,35 +622,39 @@ public class GameThread extends Thread implements Serializable {
                 case DISAPPEARING:
                     //Determine how far into the animation we are
                     float dFactor = 1 - ((float) dot.getStateDuration() / DURATION_VISIBILITY_ANIMATION);
-                    //Set Radius
-                    float dRadius = mDotRadius * dFactor;
-                    //Set Paint
-                    Paint dPaint = new Paint(paint);
-                    dPaint.setAlpha((int) (255 * dFactor));
+                    if(dFactor > 0) {
+                        //Set Radius
+                        float dRadius = mDotRadius * dFactor;
+                        //Set Paint
+                        Paint dPaint = new Paint(paint);
+                        dPaint.setAlpha((int) (255 * dFactor));
 
-                    shadowPaint.setShader(new RadialGradient(dot.getCenterX(), dot.getCenterY()+dRadius*2f*0.15f, dRadius, mContext.getResources().getColor(R.color.black), mContext.getResources().getColor(R.color.background), Shader.TileMode.MIRROR));
-                    canvas.drawCircle(dot.getCenterX(), dot.getCenterY()+dRadius*2f*0.15f, dRadius, shadowPaint);
-                    canvas.drawCircle(dot.getCenterX(), dot.getCenterY(), dRadius, dPaint);
+                        shadowPaint.setShader(new RadialGradient(dot.getCenterX(), dot.getCenterY()+dRadius*2f*0.15f, dRadius, mContext.getResources().getColor(R.color.black), mContext.getResources().getColor(R.color.background), Shader.TileMode.MIRROR));
+                        canvas.drawCircle(dot.getCenterX(), dot.getCenterY()+dRadius*2f*0.15f, dRadius, shadowPaint);
+                        canvas.drawCircle(dot.getCenterX(), dot.getCenterY(), dRadius, dPaint);
+                    }
                     break;
                 case APPEARING:
                     //Determine how far into the animation we are
                     float aFactor = (float) dot.getStateDuration() / DURATION_VISIBILITY_ANIMATION;
-                    //Set Radius
-                    float aRadius = mDotRadius * aFactor;
-                    //Set Paint
-                    Paint aPaint = new Paint();
-                    aPaint.set(paint);
-                    aPaint.setAlpha((int) (255 * aFactor));
+                    if(aFactor > 0) {
+                        //Set Radius
+                        float aRadius = mDotRadius * aFactor;
+                        //Set Paint
+                        Paint aPaint = new Paint();
+                        aPaint.set(paint);
+                        aPaint.setAlpha((int) (255 * aFactor));
 
-                    shadowPaint.setShader(new RadialGradient(dot.getCenterX(), dot.getCenterY()+aRadius*2f*0.15f, aRadius, mContext.getResources().getColor(R.color.black), mContext.getResources().getColor(R.color.background), Shader.TileMode.MIRROR));
-                    canvas.drawCircle(dot.getCenterX(), dot.getCenterY()+aRadius*2f*0.15f, aRadius, shadowPaint);
-                    canvas.drawCircle(dot.getCenterX(), dot.getCenterY(), aRadius, aPaint);
+                        shadowPaint.setShader(new RadialGradient(dot.getCenterX(), dot.getCenterY()+aRadius*2f*0.15f, aRadius, mContext.getResources().getColor(R.color.black), mContext.getResources().getColor(R.color.background), Shader.TileMode.MIRROR));
+                        canvas.drawCircle(dot.getCenterX(), dot.getCenterY()+aRadius*2f*0.15f, aRadius, shadowPaint);
+                        canvas.drawCircle(dot.getCenterX(), dot.getCenterY(), aRadius, aPaint);
+                    }
                     break;
             }
         }
 
         //Draw lines
-        if (mInteracting) {
+        if (mInteracting && !mDotChain.isEmpty()) {
             //Draw lines between chained dots
             {
                 Iterator<Dot> iterator = mDotChain.iterator();
