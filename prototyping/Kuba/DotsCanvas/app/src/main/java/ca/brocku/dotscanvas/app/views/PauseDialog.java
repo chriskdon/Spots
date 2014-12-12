@@ -3,20 +3,10 @@ package ca.brocku.dotscanvas.app.views;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.util.DisplayMetrics;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.ImageButton;
 
-import java.util.concurrent.Callable;
-
-import ca.brocku.dotscanvas.app.MainActivity;
 import ca.brocku.dotscanvas.app.R;
 import ca.brocku.dotscanvas.app.core.Callback;
 
@@ -37,11 +27,12 @@ public class PauseDialog extends Dialog {
      *                present its UI.
      */
     public PauseDialog(Context context) {
-        super(context);
+        super(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
 
         mContext = context;
 
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        initViewLocation();
+
         View view = LayoutInflater.from(context).inflate(R.layout.pause_menu, null);
         setContentView(view);
 
@@ -57,8 +48,7 @@ public class PauseDialog extends Dialog {
         });
 
 
-            initViewLocation();
-        }
+    }
 
     public void setOnResumeClickHandler(Callback onResumeClickHandler) {
         this.onResumeClickHandler = onResumeClickHandler;
@@ -66,23 +56,14 @@ public class PauseDialog extends Dialog {
 
     /**
      * Set the location of the dialog window.
-     *
+     * <p/>
      * The resume button must line up with the pause button in the game activity.
      */
     private void initViewLocation() {
-        WindowManager.LayoutParams params = getWindow().getAttributes();
-        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-
-        params.x = 300/2;
-        params.y = 300/2;
-        params.width = displayMetrics.widthPixels - 300;
-        params.height = displayMetrics.heightPixels - 300;
-        params.gravity = Gravity.TOP | Gravity.LEFT;
-
-        //getWindow().setBackgroundDrawable(new ColorDrawable(android.R.color.transparent));
+        getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         getWindow().setWindowAnimations(R.style.DialogNoAnimation);
+        getWindow().setLayout(WindowManager.LayoutParams.FILL_PARENT, WindowManager.LayoutParams.FILL_PARENT);
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-        getWindow().setAttributes(params);
     }
 
     /**
@@ -90,7 +71,7 @@ public class PauseDialog extends Dialog {
      */
     @Override
     public void onBackPressed() {
-        ((Activity)mContext).onBackPressed();
+        ((Activity) mContext).onBackPressed();
     }
 }
 
