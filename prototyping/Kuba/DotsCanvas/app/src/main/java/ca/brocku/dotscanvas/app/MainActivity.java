@@ -58,6 +58,26 @@ public class MainActivity extends ActionBarActivity {
       }
     });
 
+    dialog.setOnRestartClickHandler(new Callback() {
+      @Override
+      public void call() {
+        // TODO: Restart
+      }
+    });
+
+    dialog.setOnQuitClickHandler(new Callback() {
+      @Override
+      public void call() {
+        // TODO: Go home
+      }
+    });
+
+    dialog.setOnHighscoresClickHandler(new Callback() {
+      @Override
+      public void call() {
+        // TODO: Go to highscores
+      }
+    });
   }
 
   @Override

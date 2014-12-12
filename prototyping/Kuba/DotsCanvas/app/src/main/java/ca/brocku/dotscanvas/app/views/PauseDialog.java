@@ -16,7 +16,9 @@ import ca.brocku.dotscanvas.app.core.Callback;
  * Date: 2014-08-26
  */
 public class PauseDialog extends Dialog {
-  private Callback onResumeClickHandler, onQuitClickHandler, onRestartClickHandler;
+  private Callback onResumeClickHandler, onQuitClickHandler,
+                   onRestartClickHandler, onHighscoresClickHandler;
+
   private Context mContext;
 
   /**
@@ -39,17 +41,46 @@ public class PauseDialog extends Dialog {
     view.findViewById(R.id.btn_play).setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        try {
-          onResumeClickHandler.call();
-        } catch (Exception ex) {
-          throw new RuntimeException(ex);
-        }
+        onResumeClickHandler.call();
+      }
+    });
+
+    view.findViewById(R.id.button_pause_menu_restart).setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        onRestartClickHandler.call();
+      }
+    });
+
+    view.findViewById(R.id.button_pause_menu_home).setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        onQuitClickHandler.call();
+      }
+    });
+
+    view.findViewById(R.id.button_pause_menu_highscores).setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        onHighscoresClickHandler.call();
       }
     });
   }
 
   public void setOnResumeClickHandler(Callback onResumeClickHandler) {
     this.onResumeClickHandler = onResumeClickHandler;
+  }
+
+  public void setOnRestartClickHandler(Callback onRestartClickHandler) {
+    this.onRestartClickHandler = onRestartClickHandler;
+  }
+
+  public void setOnQuitClickHandler(Callback onQuitClickHandler) {
+    this.onQuitClickHandler = onQuitClickHandler;
+  }
+
+  public void setOnHighscoresClickHandler(Callback onHighscoresClickHandler) {
+    this.onHighscoresClickHandler = onHighscoresClickHandler;
   }
 
   /**
