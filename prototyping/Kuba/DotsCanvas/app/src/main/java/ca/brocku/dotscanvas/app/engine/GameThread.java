@@ -21,6 +21,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ca.brocku.dotscanvas.app.R;
 import ca.brocku.dotscanvas.app.engine.Handlers.MissedViewHandler;
@@ -62,7 +63,7 @@ public class GameThread extends Thread implements Serializable {
     private float mMaxLineLength = 1;
 
     private boolean mRun;  //whether the surface has been created & is ready to draw
-    private boolean mBlock; //whether the surface has lost focus
+    private AtomicBoolean mBlock; //whether the surface has lost focus
 
     private boolean mGameOver; //has the game completed
     private boolean mQuitRequested; //is the user quitting the game
@@ -96,7 +97,7 @@ public class GameThread extends Thread implements Serializable {
         mMissedViewHandler = missedViewHandler;
 
         mRun = false;
-        mBlock = false;
+        mBlock = new AtomicBoolean(false);
 
         mGameOver = false;
         mQuitRequested = false;
@@ -118,10 +119,10 @@ public class GameThread extends Thread implements Serializable {
         initializeSoundPool();
 
         //TODO extract to initialize board method
-        for(int i=0; i<4; i++) {
-            int location = (int) (Math.random()*36);
-            mDotGrid.dotAt(location).setState(DotState.APPEARING);
-        }
+//        for(int i=0; i<4; i++) {
+//            int location = (int) (Math.random()*36);
+//            mDotGrid.dotAt(location).setState(DotState.APPEARING);
+//        }
     }
 
     @Override
@@ -182,7 +183,7 @@ public class GameThread extends Thread implements Serializable {
 
             //Wait this thread when the Activity onPauses
             synchronized (mSurfaceHolder) {
-                while (mBlock) {
+                while (mBlock.get()) {
                     try {
                         mSurfaceHolder.wait();
                     } catch (InterruptedException e) {
@@ -224,33 +225,29 @@ public class GameThread extends Thread implements Serializable {
      * Requests this thread to wait.
      */
     public void onPause() {
-        synchronized (mSurfaceHolder) {
-            mBlock = true;
-            mTimePausedLast = System.currentTimeMillis();
-        }
+        mBlock.getAndSet(true);
+        mTimePausedLast = System.currentTimeMillis();
     }
 
     /**
      * Requests this thread to continue.
      */
     public void onResume() {
-        synchronized (mSurfaceHolder) {
-            mBlock = false;
-            mSurfaceHolder.notifyAll();
+        mBlock.getAndSet(false);
+        synchronized (mSurfaceHolder) { mSurfaceHolder.notifyAll(); }
 
-            //Update each visible dot with the time we were paused for
-            long timePaused = System.currentTimeMillis() - mTimePausedLast;
-            for(Dot dot: mDotGrid) {
-                if (dot.isVisible()) dot.increaseStateStartTime(timePaused);
-            }
+        //Update each visible dot with the time we were paused for
+        long timePaused = System.currentTimeMillis() - mTimePausedLast;
+        for(Dot dot: mDotGrid) {
+            if (dot.isVisible()) dot.increaseStateStartTime(timePaused);
         }
     }
 
     public void saveState() {
-        Log.e("THREAD", "saveState");
+        Log.e("GameThread", "#saveState()");
         synchronized (mSurfaceHolder) {
             if (!mGameOver && !mQuitRequested) {
-                mBlock = true;
+                mBlock.getAndSet(true);
 
                 try {
                     FileOutputStream fileOut = new FileOutputStream(mContext.getFilesDir().getPath().toString()+GAME_STATE_FILENAME);
@@ -268,6 +265,7 @@ public class GameThread extends Thread implements Serializable {
     }
 
     public void restoreState(Context mContext, SurfaceHolder holder, ScoreViewHandler scoreViewHandler, MissedViewHandler missedViewHandler) {
+        Log.e("GameThread", "#restoreState()");
         this.mContext = mContext;
         this.mSurfaceHolder = holder;
         this.mScoreViewHandler = scoreViewHandler;
@@ -282,9 +280,7 @@ public class GameThread extends Thread implements Serializable {
     }
 
     public boolean isGamePaused() {
-        synchronized (mSurfaceHolder) {
-            return mBlock;
-        }
+        return mBlock.get();
     }
 
     public void setQuitRequested(boolean isQuitRequested) {
@@ -322,25 +318,23 @@ public class GameThread extends Thread implements Serializable {
     }
 
     public boolean onTouch(MotionEvent motionEvent) {
-        synchronized (mSurfaceHolder) {
-            if (!mBlock) {
-                float x = motionEvent.getX();
-                float y = motionEvent.getY();
+        if (!mBlock.get()) {
+            float x = motionEvent.getX();
+            float y = motionEvent.getY();
 
-                switch (motionEvent.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        onTouchDown(x, y, motionEvent);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        onTouchUp(x, y, motionEvent);
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        onTouchMove(x, y, motionEvent);
-                        break;
-                    case MotionEvent.ACTION_OUTSIDE:
-                        onTouchOutside(x, y, motionEvent);
-                        break;
-                }
+            switch (motionEvent.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    onTouchDown(x, y, motionEvent);
+                    break;
+                case MotionEvent.ACTION_UP:
+                    onTouchUp(x, y, motionEvent);
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    onTouchMove(x, y, motionEvent);
+                    break;
+                case MotionEvent.ACTION_OUTSIDE:
+                    onTouchOutside(x, y, motionEvent);
+                    break;
             }
         }
         return true;
