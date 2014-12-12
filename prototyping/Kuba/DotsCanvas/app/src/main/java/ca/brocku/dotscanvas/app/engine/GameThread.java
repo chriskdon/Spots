@@ -7,7 +7,9 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RadialGradient;
 import android.graphics.Shader;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -78,6 +80,9 @@ public class GameThread extends Thread implements Serializable {
 
     private long mLastSecond; //the last second that calculations for dots to appear were done
 
+    private transient SoundPool mSoundPool;
+    private transient int mMissedSoundId, mSelectSoundId, mReleaseSoundId;
+
     // Game Loop
     private final static int MAX_FPS = 30;                  // Desired fps
     private final static int MAX_FRAME_SKIPS = 5;           // Maximum number of frames to be skipped
@@ -109,6 +114,8 @@ public class GameThread extends Thread implements Serializable {
         mTimePausedLast = System.currentTimeMillis();
 
         mLastSecond = System.currentTimeMillis() / 1000;
+
+        initializeSoundPool();
 
         //TODO extract to initialize board method
         for(int i=0; i<4; i++) {
@@ -258,6 +265,14 @@ public class GameThread extends Thread implements Serializable {
                 }
             }
         }
+    }
+
+    public void restoreState(Context mContext, SurfaceHolder holder, ScoreViewHandler scoreViewHandler, MissedViewHandler missedViewHandler) {
+        this.mContext = mContext;
+        this.mSurfaceHolder = holder;
+        this.mScoreViewHandler = scoreViewHandler;
+        this.mMissedViewHandler = missedViewHandler;
+        initializeSoundPool();
     }
 
     public boolean isGameOver() {
@@ -436,29 +451,13 @@ public class GameThread extends Thread implements Serializable {
     private void addDotToChain(Dot dot) {
         mDotChain.push(dot);
         dot.setState(DotState.SELECTED);
-        MediaPlayer mp = MediaPlayer.create(mContext, R.raw.select);
-        mp.start();
-        mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                mp.reset();
-                mp.release();
-            }
-        });
+        playSound(mSelectSoundId);
     }
 
     private void clearChain() {
         if (!mDotChain.isEmpty()) {
             mDotChain.clear();
-            MediaPlayer mp = MediaPlayer.create(mContext, R.raw.release);
-            mp.start();
-            mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    mp.reset();
-                    mp.release();
-                }
-            });
+            playSound(mReleaseSoundId);
         }
         mInteracting = false;
     }
@@ -476,15 +475,11 @@ public class GameThread extends Thread implements Serializable {
 
         mMissedViewHandler.updateMissedCount(DOTS_TO_MISS - mMissedDots);
 
-        MediaPlayer mp = MediaPlayer.create(mContext, R.raw.miss);
-        mp.start();
-        mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                mp.reset();
-                mp.release();
-            }
-        });
+        playSound(mMissedSoundId);
+    }
+
+    private void playSound(int soundId) {
+        mSoundPool.play(soundId, 1, 1, 0, 0, 1);
     }
 
     private void updateState() {
@@ -681,16 +676,10 @@ public class GameThread extends Thread implements Serializable {
         }
     }
 
-    public void setContext(Context context) {
-        this.mContext = context;
-    }
-
-    public void setHandlers(ScoreViewHandler scoreViewHandler, MissedViewHandler missedViewHandler) {
-        this.mScoreViewHandler = scoreViewHandler;
-        this.mMissedViewHandler = missedViewHandler;
-    }
-
-    public void setSurfaceHolder(SurfaceHolder surfaceHolder) {
-        this.mSurfaceHolder = surfaceHolder;
+    private void initializeSoundPool() {
+        mSoundPool = new SoundPool(4, AudioManager.STREAM_MUSIC, 0);
+        mMissedSoundId = mSoundPool.load(this.mContext, R.raw.miss, 1);
+        mSelectSoundId = mSoundPool.load(this.mContext, R.raw.select, 3);
+        mReleaseSoundId = mSoundPool.load(this.mContext, R.raw.release, 2);
     }
 }
