@@ -1,11 +1,8 @@
 package ca.brocku.dotscanvas.app;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 /**
@@ -21,7 +18,7 @@ public class HighscoresActivity extends ActionBarActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.highscores);
 
-    this.lbl_Highscores = new TextView[] {
+    this.lbl_Highscores = new TextView[]{
         (TextView) findViewById(R.id.lbl_Highscore1),
         (TextView) findViewById(R.id.lbl_Highscore2),
         (TextView) findViewById(R.id.lbl_Highscore3),
@@ -38,7 +35,7 @@ public class HighscoresActivity extends ActionBarActivity {
    * @param score The score to set it to.
    */
   private void setHighscore(int rank, int score) {
-    if(rank >= lbl_Highscores.length) {
+    if (rank >= lbl_Highscores.length) {
       throw new IllegalArgumentException("Rank must be less than: " + lbl_Highscores.length);
     }
 
