@@ -35,6 +35,8 @@ public class GameThread extends Thread implements Serializable {
   //Strings used for storing the game state
   public static final String GAME_STATE_FILENAME = "game-state.ser";
 
+  private static final Object mutex = new Object();
+
   private static final int GRID_LENGTH = 6;
   private static final int NUMBER_OF_DOTS = 36;
   private static final int DOTS_TO_MISS = 15;
@@ -135,7 +137,7 @@ public class GameThread extends Thread implements Serializable {
       Canvas c = null;
       try {
         c = mSurfaceHolder.lockCanvas();
-        synchronized (mSurfaceHolder) {
+        synchronized (mutex) {
           beginTime = System.currentTimeMillis();
           framesSkipped = 0;    // resetting the frames skipped
 
@@ -180,10 +182,10 @@ public class GameThread extends Thread implements Serializable {
       }
 
       //Wait this thread when the Activity onPauses
-      synchronized (mSurfaceHolder) {
+      synchronized (mutex) {
         while (mBlock.get()) {
           try {
-            mSurfaceHolder.wait();
+            mutex.wait();
           } catch (InterruptedException e) {
           }
 
@@ -230,8 +232,8 @@ public class GameThread extends Thread implements Serializable {
    */
   public void onResume() {
     mBlock.getAndSet(false);
-    synchronized (mSurfaceHolder) {
-      mSurfaceHolder.notifyAll();
+    synchronized (mutex) {
+      mutex.notifyAll();
     }
 
     //Update each visible dot with the time we were paused for
@@ -291,7 +293,7 @@ public class GameThread extends Thread implements Serializable {
    * @see ca.brocku.dotscanvas.app.GameSurfaceView#surfaceChanged
    */
   public void onSurfaceChange(SurfaceHolder surfaceHolder, int width, int height) {
-    synchronized (mSurfaceHolder) {
+    synchronized (mutex) {
       mSurfaceHolder = surfaceHolder;
       mCanvasHeight = height;
       mCanvasWidth = width;
