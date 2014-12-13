@@ -10,9 +10,10 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import ca.brocku.dotscanvas.app.core.Callback;
+import ca.brocku.dotscanvas.app.core.GameOverListener;
 import ca.brocku.dotscanvas.app.views.PauseDialog;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements GameOverListener {
   private GameSurfaceView mGameSurfaceView;
   private TextView mScoreTextView, mMissedTextView;
   private ImageButton mPauseButton;
@@ -97,6 +98,11 @@ public class MainActivity extends ActionBarActivity {
     } else {
       showDialogAndPauseGame();
     }
+  }
+
+  @Override
+  public void onGameOver() {
+    //TODO: Show Game Over menu
   }
 
   public void hideDialogAndResumeGame() {
