@@ -60,11 +60,11 @@ public class GameThread extends Thread implements Serializable {
   private float mDotRadius = 1;
   private float mMaxLineLength = 1;
 
-  private boolean mRun;  //whether the surface has been created & is ready to draw
+  private AtomicBoolean mRun;  //whether the surface has been created & is ready to draw
   private AtomicBoolean mBlock; //whether the surface has lost focus
 
-  private boolean mGameOver; //has the game completed
-  private boolean mQuitRequested; //is the user quitting the game
+  private AtomicBoolean mGameOver; //has the game completed
+  private AtomicBoolean mQuitRequested; //is the user quitting the game
 
   private DotGrid mDotGrid;
   private Stack<Dot> mDotChain;
@@ -94,11 +94,11 @@ public class GameThread extends Thread implements Serializable {
     mScoreViewHandler = scoreViewHandler;
     mMissedViewHandler = missedViewHandler;
 
-    mRun = false;
+    mRun = new AtomicBoolean(false);
     mBlock = new AtomicBoolean(false);
 
-    mGameOver = false;
-    mQuitRequested = false;
+    mGameOver = new AtomicBoolean(false);
+    mQuitRequested = new AtomicBoolean(false);
 
     mDotGrid = new DotGrid(GRID_LENGTH);
 
@@ -130,7 +130,7 @@ public class GameThread extends Thread implements Serializable {
     int sleepTime;        // ms to sleep (<0 if we're behind)
     int framesSkipped;    // number of frames being skipped
 
-    while (mRun) {
+    while (mRun.get()) {
 
       Canvas c = null;
       try {
@@ -200,9 +200,7 @@ public class GameThread extends Thread implements Serializable {
    * @param b whether the thread should continue running
    */
   public void setRunning(boolean b) {
-    synchronized (mSurfaceHolder) {
-      mRun = b;
-    }
+    mRun.getAndSet(b);
   }
 
   /**
@@ -245,21 +243,20 @@ public class GameThread extends Thread implements Serializable {
 
   public void saveState() {
     Log.e("GameThread", "#saveState()");
-    synchronized (mSurfaceHolder) {
-      if (!mGameOver && !mQuitRequested) {
-        mBlock.getAndSet(true);
 
-        try {
-          FileOutputStream fileOut = new FileOutputStream(mContext.getFilesDir().getPath().toString() + GAME_STATE_FILENAME);
-          ObjectOutputStream out = new ObjectOutputStream(fileOut);
-          out.writeObject(this);
-          out.close();
-          fileOut.close();
-        } catch (FileNotFoundException e) {
-          e.printStackTrace();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
+    if (!mGameOver.get() && !mQuitRequested.get()) {
+      mBlock.getAndSet(true);
+
+      try {
+        FileOutputStream fileOut = new FileOutputStream(mContext.getFilesDir().getPath().toString() + GAME_STATE_FILENAME);
+        ObjectOutputStream out = new ObjectOutputStream(fileOut);
+        out.writeObject(this);
+        out.close();
+        fileOut.close();
+      } catch (FileNotFoundException e) {
+        e.printStackTrace();
+      } catch (IOException e) {
+        e.printStackTrace();
       }
     }
   }
@@ -274,19 +271,15 @@ public class GameThread extends Thread implements Serializable {
   }
 
   public boolean isGameOver() {
-    synchronized (mSurfaceHolder) {
-      return mGameOver;
-    }
+      return mGameOver.get();
   }
 
   public boolean isGamePaused() {
     return mBlock.get();
   }
 
-  public void setQuitRequested(boolean isQuitRequested) {
-    synchronized (mSurfaceHolder) {
-      this.mQuitRequested = isQuitRequested;
-    }
+  public void setQuitRequested(boolean b) {
+    mQuitRequested.getAndSet(b);
   }
 
   /**
@@ -481,8 +474,8 @@ public class GameThread extends Thread implements Serializable {
 
     for (Dot dot : mDotGrid) {
       if (mMissedDots >= DOTS_TO_MISS) {
-        mRun = false;
-        mGameOver = true;
+        mRun.getAndSet(false);
+        mGameOver.getAndSet(true);
         break;
       }
       long stateDuration = dot.getStateDuration();
@@ -514,7 +507,7 @@ public class GameThread extends Thread implements Serializable {
           break;
       }
     }
-    if (mGameOver) {
+    if (mGameOver.get()) {
       for (Dot dot : mDotGrid) dot.setState(DotState.INVISIBLE);
     }
     mLastSecond = currentSecond;
