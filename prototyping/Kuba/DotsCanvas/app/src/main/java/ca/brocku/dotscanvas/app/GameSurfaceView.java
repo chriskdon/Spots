@@ -1,7 +1,6 @@
 package ca.brocku.dotscanvas.app;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -23,163 +22,163 @@ import ca.brocku.dotscanvas.app.engine.Handlers.ScoreViewHandler;
 
 
 public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener {
-    private GameThread thread; //Handles drawing; initialized in surfaceCreated() callback
-    private Context mContext;
-    private TextView mScoreView;
-    private TextView mMissedView;
+  private GameThread thread; //Handles drawing; initialized in surfaceCreated() callback
+  private Context mContext;
+  private TextView mScoreView;
+  private TextView mMissedView;
 
-    public GameSurfaceView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+  public GameSurfaceView(Context context, AttributeSet attrs) {
+    super(context, attrs);
 
-        if (!isInEditMode()) {
-            //Register this SurfaceHolder to listen for changes to the Surface
-            SurfaceHolder surfaceHolder = getHolder();
-            surfaceHolder.addCallback(this);
+    if (!isInEditMode()) {
+      //Register this SurfaceHolder to listen for changes to the Surface
+      SurfaceHolder surfaceHolder = getHolder();
+      surfaceHolder.addCallback(this);
 
-            //Register this to listen for click events
-            this.setOnTouchListener(this);
+      //Register this to listen for click events
+      this.setOnTouchListener(this);
 
-            mContext = context;
+      mContext = context;
 
-            //Clear any saved game state
-            clearState();
-        }
+      //Clear any saved game state
+      clearState();
+    }
+  }
+
+  /**
+   * Callback for the SurfaceHolder once the surface is created.
+   * <p/>
+   * Create a new thread here for every new surface to tie the thread's lifecycle to that of the
+   * surface.
+   * <p/>
+   * Start the thread here so we don't busy-wait in run() waiting for the surface to be created
+   *
+   * @param surfaceHolder the SurfaceHolder whose surface has been created.
+   */
+  @Override
+  public void surfaceCreated(SurfaceHolder surfaceHolder) {
+    Log.e("Thread", "surfaceCreated()");
+
+    if (new File(mContext.getFilesDir().getPath().toString() + GameThread.GAME_STATE_FILENAME).exists()) {
+      restoreGameState();
+      if (!((MainActivity) mContext).isDialogVisible()) {
+        thread.onResume();
+      }
+    } else {
+      thread = new GameThread(surfaceHolder, mContext,
+          new ScoreViewHandler(mScoreView), new MissedViewHandler(mMissedView));
     }
 
-    /**
-     * Callback for the SurfaceHolder once the surface is created.
-     * <p/>
-     * Create a new thread here for every new surface to tie the thread's lifecycle to that of the
-     * surface.
-     * <p/>
-     * Start the thread here so we don't busy-wait in run() waiting for the surface to be created
-     *
-     * @param surfaceHolder the SurfaceHolder whose surface has been created.
-     */
-    @Override
-    public void surfaceCreated(SurfaceHolder surfaceHolder) {
-        Log.e("Thread", "surfaceCreated()");
+    thread.start();
+  }
 
-        if (new File(mContext.getFilesDir().getPath().toString()+GameThread.GAME_STATE_FILENAME).exists()) {
-            restoreGameState();
-            if(!((MainActivity)mContext).isDialogVisible()) {
-                thread.onResume();
-            }
-        } else {
-            thread = new GameThread(surfaceHolder, mContext,
-                    new ScoreViewHandler(mScoreView), new MissedViewHandler(mMissedView));
-        }
+  public void restoreGameState() {
+    Log.e("THREAD", "restoreState");
+    synchronized (getHolder()) {
+      FileInputStream fileIn = null;
+      try {
+        fileIn = new FileInputStream(mContext.getFilesDir().getPath().toString() + GameThread.GAME_STATE_FILENAME);
+        ObjectInputStream in = new ObjectInputStream(fileIn);
+        thread = (GameThread) in.readObject();
+        in.close();
+        fileIn.close();
+      } catch (FileNotFoundException e) {
+        e.printStackTrace();
+      } catch (IOException e) {
+        e.printStackTrace();
+      } catch (ClassNotFoundException e) {
+        e.printStackTrace();
+      }
 
-        thread.start();
+      if (thread != null) {
+        thread.setContext(mContext);
+        thread.setHandlers(new ScoreViewHandler(mScoreView), new MissedViewHandler(mMissedView));
+        thread.setSurfaceHolder(getHolder());
+      }
+
+
+      clearState();
     }
+  }
 
-    public void restoreGameState() {
-        Log.e("THREAD", "restoreState");
-        synchronized (getHolder()) {
-            FileInputStream fileIn = null;
-            try {
-                fileIn = new FileInputStream(mContext.getFilesDir().getPath().toString()+GameThread.GAME_STATE_FILENAME);
-                ObjectInputStream in = new ObjectInputStream(fileIn);
-                thread = (GameThread)in.readObject();
-                in.close();
-                fileIn.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+  public void clearState() {
+    //Clear the loaded state
+    new File(mContext.getFilesDir().getPath().toString() + GameThread.GAME_STATE_FILENAME).delete();
+  }
 
-            if (thread != null) {
-               thread.setContext(mContext);
-               thread.setHandlers(new ScoreViewHandler(mScoreView), new MissedViewHandler(mMissedView));
-               thread.setSurfaceHolder(getHolder());
-            }
+  /**
+   * Callback for the SurfaceHolder when the surface changes.
+   *
+   * @param holder the SurfaceHolder whose surface has changed.
+   * @param format the new PixelFormat of the surface.
+   * @param width  the new width of the surface.
+   * @param height the new height of the surface.
+   */
+  @Override
+  public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+    Log.e("Thread", "surfaceChanged()");
+    holder.setFormat(PixelFormat.RGBA_8888); //sets 32-bit color mode to match the views' colors
+    thread.onSurfaceChange(holder, width, height);
+  }
 
-
-            clearState();
-        }
+  /**
+   * Callback for the SurfaceHolder once the surface is destroyed.
+   * <p/>
+   * Tell the thread to stop and wait for it to finish so that it does not touch the Surface after
+   * we return and explode.
+   *
+   * @param surfaceHolder the SurfaceHolder whose surface has been destroyed.
+   */
+  @Override
+  public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+    Log.e("Thread", "surfaceDestroyed()");
+    boolean retry = true;
+    thread.setRunning(false); //tell the thread to shutdown
+    thread.onResume(); //in case the thread is waiting
+    while (retry) {
+      try {
+        thread.join(); //block until it finishes
+        retry = false;
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
     }
+    thread.saveState();
+  }
 
-    public void clearState() {
-        //Clear the loaded state
-        new File(mContext.getFilesDir().getPath().toString()+GameThread.GAME_STATE_FILENAME).delete();
-    }
+  @Override
+  public boolean onTouch(View view, MotionEvent motionEvent) {
+    return thread.onTouch(motionEvent);
+  }
 
-    /**
-     * Callback for the SurfaceHolder when the surface changes.
-     *
-     * @param holder the SurfaceHolder whose surface has changed.
-     * @param format the new PixelFormat of the surface.
-     * @param width  the new width of the surface.
-     * @param height the new height of the surface.
-     */
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        Log.e("Thread", "surfaceChanged()");
-        holder.setFormat(PixelFormat.RGBA_8888); //sets 32-bit color mode to match the views' colors
-        thread.onSurfaceChange(holder, width, height);
+  public void onPauseGame() {
+    if (thread != null) {
+      thread.onPause();
     }
+  }
 
-    /**
-     * Callback for the SurfaceHolder once the surface is destroyed.
-     * <p/>
-     * Tell the thread to stop and wait for it to finish so that it does not touch the Surface after
-     * we return and explode.
-     *
-     * @param surfaceHolder the SurfaceHolder whose surface has been destroyed.
-     */
-    @Override
-    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-        Log.e("Thread", "surfaceDestroyed()");
-        boolean retry = true;
-        thread.setRunning(false); //tell the thread to shutdown
-        thread.onResume(); //in case the thread is waiting
-        while (retry) {
-            try {
-                thread.join(); //block until it finishes
-                retry = false;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        thread.saveState();
+  /**
+   * Start the game thread if it has not been started yet.
+   */
+  public void onResumeGame() {
+    if (thread != null) {
+      thread.onResume();
     }
+  }
 
-    @Override
-    public boolean onTouch(View view, MotionEvent motionEvent) {
-        return thread.onTouch(motionEvent);
-    }
+  public GameThread getGameThread() {
+    return thread;
+  }
 
-    public void onPauseGame() {
-        if (thread != null) {
-            thread.onPause();
-        }
-    }
+  public boolean isGamePaused() {
+    return thread.isGamePaused();
+  }
 
-    /**
-     * Start the game thread if it has not been started yet.
-     */
-    public void onResumeGame() {
-        if (thread != null) {
-            thread.onResume();
-        }
-    }
+  public void setScoreView(TextView scoreView) {
+    this.mScoreView = scoreView;
+  }
 
-    public GameThread getGameThread() {
-        return thread;
-    }
-
-    public boolean isGamePaused() {
-        return thread.isGamePaused();
-    }
-
-    public void setScoreView(TextView scoreView) {
-        this.mScoreView = scoreView;
-    }
-
-    public void setMissedView(TextView missedView) {
-        this.mMissedView = missedView;
-    }
+  public void setMissedView(TextView missedView) {
+    this.mMissedView = missedView;
+  }
 }

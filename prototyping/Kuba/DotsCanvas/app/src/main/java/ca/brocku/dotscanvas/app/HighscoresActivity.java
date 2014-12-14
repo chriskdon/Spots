@@ -5,12 +5,17 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.TextView;
 
+import ca.brocku.dotscanvas.app.models.HighscoreManager;
+
 /**
  * Author: Chris Kellendonk
  * Student #: 4810800
  * Date: 2014-12-11
  */
 public class HighscoresActivity extends ActionBarActivity {
+  public static int MAX_SCORES = 5;
+
+  private HighscoreManager highscoreManager;
   private TextView[] lbl_Highscores;
 
   @Override
@@ -18,7 +23,9 @@ public class HighscoresActivity extends ActionBarActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.highscores);
 
-    this.lbl_Highscores = new TextView[]{
+    this.highscoreManager = new HighscoreManager(this);
+
+    this.lbl_Highscores = new TextView[] {
         (TextView) findViewById(R.id.lbl_Highscore1),
         (TextView) findViewById(R.id.lbl_Highscore2),
         (TextView) findViewById(R.id.lbl_Highscore3),
@@ -26,10 +33,13 @@ public class HighscoresActivity extends ActionBarActivity {
         (TextView) findViewById(R.id.lbl_Highscore5),
     };
 
+    for(int i = 0; i < MAX_SCORES; i++) {
+      setHighscore(i, highscoreManager.getScore(i));
+    }
   }
 
   /**
-   * Set the highscore for a specific rank.
+   * Set the high score for a specific rank.
    *
    * @param rank  The rank of the score.
    * @param score The score to set it to.
@@ -40,6 +50,6 @@ public class HighscoresActivity extends ActionBarActivity {
     }
 
     lbl_Highscores[rank].setText(Integer.toString(score));
-    lbl_Highscores[rank].setVisibility(View.VISIBLE);
+    lbl_Highscores[rank].setVisibility((score > 0 ? View.VISIBLE : View.INVISIBLE));
   }
 }
