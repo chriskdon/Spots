@@ -185,7 +185,6 @@ public class GameThread extends Thread implements Serializable {
       synchronized (mutex) {
         while (mBlock.get()) {
           try {
-
             mutex.wait();
           } catch (InterruptedException e) {
           }
