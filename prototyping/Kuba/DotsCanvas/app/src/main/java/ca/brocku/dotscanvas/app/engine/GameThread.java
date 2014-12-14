@@ -510,6 +510,9 @@ public class GameThread extends Thread implements Serializable {
       }
     }
     if (mGameOver.get()) {
+      if (!mDotChain.isEmpty()) {
+        mDotChain.clear();
+      }
       for (Dot dot : mDotGrid) dot.setState(DotState.INVISIBLE);
     }
     mLastSecond = currentSecond;
@@ -581,6 +584,7 @@ public class GameThread extends Thread implements Serializable {
     paint.setAntiAlias(true);
     paint.setColor(Color.rgb(237, 17, 100));
     paint.setStrokeWidth(15);
+    paint.setStrokeCap(Paint.Cap.ROUND);
 
     //Draw dots
     for (Dot dot : mDotGrid) {
