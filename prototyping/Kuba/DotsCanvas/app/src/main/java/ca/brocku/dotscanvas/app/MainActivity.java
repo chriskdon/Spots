@@ -38,7 +38,6 @@ public class MainActivity extends ActionBarActivity {
     mPauseButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        mPauseButton.setVisibility(View.INVISIBLE);
         showDialogAndPauseGame();
       }
     });
@@ -46,7 +45,6 @@ public class MainActivity extends ActionBarActivity {
     dialog.setOnResumeClickHandler(new Callback() {
       @Override
       public void call() {
-        mPauseButton.setVisibility(View.VISIBLE);
         hideDialogAndResumeGame();
       }
     });
@@ -92,9 +90,7 @@ public class MainActivity extends ActionBarActivity {
   protected void onPause() {
     Log.e("MainActivity", "#onPause()");
     super.onPause();
-
-    mGameSurfaceView.onPauseGame(); // pause game when Activity pauses
-    dialog.show();
+    showDialogAndPauseGame();
   }
 
   @Override
@@ -113,11 +109,13 @@ public class MainActivity extends ActionBarActivity {
   }
 
   public void hideDialogAndResumeGame() {
+    mPauseButton.setVisibility(View.VISIBLE);
     dialog.hide();
     mGameSurfaceView.onResumeGame();
   }
 
   public void showDialogAndPauseGame() {
+    mPauseButton.setVisibility(View.INVISIBLE);
     dialog.show();
     mGameSurfaceView.onPauseGame();
   }
