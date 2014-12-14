@@ -38,6 +38,8 @@ public class MainMenuActivity extends ActionBarActivity {
         MainMenuActivity.this.startActivity(new Intent(MainMenuActivity.this, HighscoresActivity.class));
       }
     });
+
+
   }
 
   @Override
@@ -70,6 +72,7 @@ public class MainMenuActivity extends ActionBarActivity {
     dimActivity(true);
     super.startActivity(intent);
   }
+
 
   /**
    * Toggle the overlay for the activity.

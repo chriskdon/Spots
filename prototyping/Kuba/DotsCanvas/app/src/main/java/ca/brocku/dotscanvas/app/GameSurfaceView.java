@@ -57,7 +57,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
    */
   @Override
   public void surfaceCreated(SurfaceHolder surfaceHolder) {
-    Log.e("Thread", "surfaceCreated()");
+    Log.e("GameSurfaceView", "#surfaceCreated()");
 
     if (new File(mContext.getFilesDir().getPath().toString() + GameThread.GAME_STATE_FILENAME).exists()) {
       restoreGameState();
@@ -73,7 +73,6 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
   }
 
   public void restoreGameState() {
-    Log.e("THREAD", "restoreState");
     synchronized (getHolder()) {
       FileInputStream fileIn = null;
       try {
@@ -91,9 +90,10 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
       }
 
       if (thread != null) {
-        thread.setContext(mContext);
-        thread.setHandlers(new ScoreViewHandler(mScoreView), new MissedViewHandler(mMissedView));
-        thread.setSurfaceHolder(getHolder());
+        thread.restoreState(mContext,
+                            getHolder(),
+                            new ScoreViewHandler(mScoreView),
+                            new MissedViewHandler(mMissedView));
       }
 
 
@@ -116,7 +116,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
    */
   @Override
   public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-    Log.e("Thread", "surfaceChanged()");
+    Log.e("GameSurfaceView", "#surfaceChanged()");
     holder.setFormat(PixelFormat.RGBA_8888); //sets 32-bit color mode to match the views' colors
     thread.onSurfaceChange(holder, width, height);
   }
@@ -131,7 +131,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
    */
   @Override
   public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-    Log.e("Thread", "surfaceDestroyed()");
+    Log.e("GameSurfaceView", "#surfaceDestroyed()");
     boolean retry = true;
     thread.setRunning(false); //tell the thread to shutdown
     thread.onResume(); //in case the thread is waiting

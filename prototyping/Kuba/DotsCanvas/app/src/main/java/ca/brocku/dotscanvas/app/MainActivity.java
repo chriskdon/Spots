@@ -21,7 +21,7 @@ public class MainActivity extends ActionBarActivity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    Log.e("MainActivity", "onCreate");
+    Log.e("MainActivity", "#onCreate()");
 
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
@@ -98,7 +98,7 @@ public class MainActivity extends ActionBarActivity {
 
   @Override
   protected void onPause() {
-    Log.e("MainActivity", "onPause");
+    Log.e("MainActivity", "#onPause()");
     super.onPause();
 
     mGameSurfaceView.onPauseGame(); // pause game when Activity pauses
@@ -107,7 +107,7 @@ public class MainActivity extends ActionBarActivity {
 
   @Override
   protected void onResume() {
-    Log.e("MainActivity", "onResume");
+    Log.e("MainActivity", "#onResume()");
     super.onResume();
   }
 

@@ -1,5 +1,4 @@
 <resources>
-
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowFullscreen">true</item>
@@ -10,5 +9,12 @@
     <style name="DialogNoAnimation">
         <item name="android:windowEnterAnimation">@anim/enter</item>
         <item name="android:windowExitAnimation">@anim/exit</item>
+    </style>
+
+    <style name="PauseScreen" parent="android:Theme.Translucent.NoTitleBar.Fullscreen">
+        <item name="android:windowAnimationStyle">@style/DialogNoAnimation</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:backgroundDimEnabled">false</item>
     </style>
 </resources>
