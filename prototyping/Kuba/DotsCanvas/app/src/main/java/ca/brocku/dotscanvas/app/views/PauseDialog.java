@@ -29,11 +29,9 @@ public class PauseDialog extends Dialog {
    *                present its UI.
    */
   public PauseDialog(Context context) {
-    super(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+    super(context, R.style.PauseScreen);
 
     mContext = context;
-
-    initViewLocation();
 
     View view = LayoutInflater.from(context).inflate(R.layout.pause_menu, null);
     setContentView(view);
@@ -89,18 +87,6 @@ public class PauseDialog extends Dialog {
 
   public void setOnHighscoresClickHandler(Callback onHighscoresClickHandler) {
     this.onHighscoresClickHandler = onHighscoresClickHandler;
-  }
-
-  /**
-   * Set the location of the dialog window.
-   * <p/>
-   * The resume button must line up with the pause button in the game activity.
-   */
-  private void initViewLocation() {
-    getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-    getWindow().setWindowAnimations(R.style.DialogNoAnimation);
-    getWindow().setLayout(WindowManager.LayoutParams.FILL_PARENT, WindowManager.LayoutParams.FILL_PARENT);
-    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
   }
 
   /**
