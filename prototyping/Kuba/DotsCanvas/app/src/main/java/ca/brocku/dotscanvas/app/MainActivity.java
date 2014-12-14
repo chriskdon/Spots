@@ -35,13 +35,6 @@ public class MainActivity extends ActionBarActivity {
 
     dialog = new PauseDialog(MainActivity.this);
 
-    dialog.setOnResumeClickHandler(new Callback() {
-      @Override
-      public void call() {
-        hideDialogAndResumeGame();
-      }
-    });
-
     mPauseButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
