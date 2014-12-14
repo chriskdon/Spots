@@ -6,5 +6,5 @@ package ca.brocku.dotscanvas.app.core;
  */
 public interface GameOverListener {
 
-  public void onGameOver();
+  public void onGameOver(int score);
 }

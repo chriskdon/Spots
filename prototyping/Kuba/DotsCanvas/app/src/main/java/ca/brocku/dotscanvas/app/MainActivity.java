@@ -101,7 +101,7 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
   }
 
   @Override
-  public void onGameOver() {
+  public void onGameOver(int score) {
     //TODO: Show Game Over menu
   }
 

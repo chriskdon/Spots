@@ -195,7 +195,7 @@ public class GameThread extends Thread implements Serializable {
         }
 
         if (mGameOver) {
-          ((GameOverListener) mContext).onGameOver();
+          ((GameOverListener) mContext).onGameOver(mScore);
         }
     }
 
