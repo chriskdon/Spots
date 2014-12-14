@@ -6,11 +6,12 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
 public class MainMenuActivity extends ActionBarActivity {
-  FrameLayout dim_overlay;
+  private FrameLayout dim_overlay;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -18,14 +19,27 @@ public class MainMenuActivity extends ActionBarActivity {
     setContentView(R.layout.activity_main_menu);
 
     ImageButton lifeButton = (ImageButton) findViewById(R.id.btn_StartLifeGame);
+    Button highscoresButton = (Button) findViewById(R.id.main_menu_highscores);
+
     dim_overlay = (FrameLayout) findViewById(R.id.dim_overlay);
 
+    // Start Game
     lifeButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
         MainMenuActivity.this.startActivity(new Intent(MainMenuActivity.this, MainActivity.class));
       }
     });
+
+    // Show Highscores
+    highscoresButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        MainMenuActivity.this.startActivity(new Intent(MainMenuActivity.this, HighscoresActivity.class));
+      }
+    });
+
+
   }
 
   @Override
@@ -58,6 +72,7 @@ public class MainMenuActivity extends ActionBarActivity {
     dimActivity(true);
     super.startActivity(intent);
   }
+
 
   /**
    * Toggle the overlay for the activity.

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/highscores_title"
+        android:textSize="25pt"
+        android:textColor="#FFFFFF"
+        android:gravity="center"
+        android:textAllCaps="true"
+        android:layout_marginTop="20dp" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginTop="40dp"
+        android:orientation="vertical"
+        android:layout_gravity="center">
+
+        <TextView
+            android:id="@+id/lbl_Highscore1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="50dp"
+            android:textColor="#FFF"
+            android:gravity="center"
+            android:visibility="invisible"
+            />
+
+        <TextView
+            android:id="@+id/lbl_Highscore2"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="50dp"
+            android:textColor="#FFF"
+            android:gravity="center"
+            android:layout_marginTop="20dp"
+            android:visibility="invisible"
+            />
+
+        <TextView
+            android:id="@+id/lbl_Highscore3"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="50dp"
+            android:textColor="#FFF"
+            android:gravity="center"
+            android:layout_marginTop="20dp"
+            android:visibility="invisible"
+            />
+
+        <TextView
+            android:id="@+id/lbl_Highscore4"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="50dp"
+            android:textColor="#FFF"
+            android:gravity="center"
+            android:layout_marginTop="20dp"
+            android:visibility="invisible"
+            />
+
+        <TextView
+            android:id="@+id/lbl_Highscore5"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="50dp"
+            android:textColor="#FFF"
+            android:gravity="center"
+            android:layout_marginTop="20dp"
+            android:visibility="invisible"
+            />
+    </LinearLayout>
+</LinearLayout>

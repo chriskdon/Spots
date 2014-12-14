@@ -44,6 +44,12 @@
             android:background="@null"
             android:src="@drawable/button_life_game" />
 
+        <Button
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Highscores"
+            android:id="@+id/main_menu_highscores"/>
+
     </LinearLayout>
 
     <!-- Dimming overlay -->

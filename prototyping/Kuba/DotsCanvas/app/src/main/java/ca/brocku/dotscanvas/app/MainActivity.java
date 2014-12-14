@@ -1,5 +1,6 @@
 package ca.brocku.dotscanvas.app;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -75,7 +76,7 @@ public class MainActivity extends ActionBarActivity {
     dialog.setOnHighscoresClickHandler(new Callback() {
       @Override
       public void call() {
-        // TODO: Go to highscores
+        MainActivity.this.startActivity(new Intent(MainActivity.this, HighscoresActivity.class));
       }
     });
   }

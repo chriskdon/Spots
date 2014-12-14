@@ -91,9 +91,9 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
       if (thread != null) {
         thread.restoreState(mContext,
-            getHolder(),
-            new ScoreViewHandler(mScoreView),
-            new MissedViewHandler(mMissedView));
+                            getHolder(),
+                            new ScoreViewHandler(mScoreView),
+                            new MissedViewHandler(mMissedView));
       }
 
 
