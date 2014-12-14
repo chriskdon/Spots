@@ -185,6 +185,7 @@ public class GameThread extends Thread implements Serializable {
       synchronized (mutex) {
         while (mBlock.get()) {
           try {
+
             mutex.wait();
           } catch (InterruptedException e) {
           }
@@ -302,13 +303,7 @@ public class GameThread extends Thread implements Serializable {
       mPixelsPerDotRegion = mCanvasLength / GRID_LENGTH;
       mDotRadius = mPixelsPerDotRegion * 2.0f / 3.0f / 2;
       mMaxLineLength = (float) (1.5 * mPixelsPerDotRegion);
-
-      for (Dot dot : mDotGrid) {
-        dot.setCenterX(
-            (float) ((float) dot.getRow() * mPixelsPerDotRegion + mPixelsPerDotRegion / 2.0));
-        dot.setCenterY(
-            (float) ((float) dot.getCol() * mPixelsPerDotRegion + mPixelsPerDotRegion / 2.0));
-      }
+      mDotGrid.setCoordsForDots(mPixelsPerDotRegion);
     }
   }
 
