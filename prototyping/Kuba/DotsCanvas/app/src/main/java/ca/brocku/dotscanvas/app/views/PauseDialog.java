@@ -41,28 +41,36 @@ public class PauseDialog extends Dialog {
     view.findViewById(R.id.btn_play).setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        onResumeClickHandler.call();
+        if(onResumeClickHandler != null) {
+          onResumeClickHandler.call();
+        }
       }
     });
 
     view.findViewById(R.id.button_pause_menu_restart).setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        onRestartClickHandler.call();
+        if(onRestartClickHandler != null) {
+          onRestartClickHandler.call();
+        }
       }
     });
 
     view.findViewById(R.id.button_pause_menu_home).setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        onQuitClickHandler.call();
+        if(onQuitClickHandler != null) {
+          onQuitClickHandler.call();
+        }
       }
     });
 
     view.findViewById(R.id.button_pause_menu_highscores).setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        onHighscoresClickHandler.call();
+        if(onHighscoresClickHandler != null) {
+          onHighscoresClickHandler.call();
+        }
       }
     });
   }
