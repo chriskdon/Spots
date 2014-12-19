@@ -1,6 +1,9 @@
 package ca.brocku.dotscanvas.app;
 
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -12,11 +15,14 @@ import android.widget.ImageButton;
 
 public class MainMenuActivity extends ActionBarActivity {
   private FrameLayout dim_overlay;
+  private MediaPlayer mButtonSoundPlayer;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main_menu);
+
+    mButtonSoundPlayer = MediaPlayer.create(this, R.raw.button_press);
 
     ImageButton lifeButton = (ImageButton) findViewById(R.id.btn_StartLifeGame);
     Button highscoresButton = (Button) findViewById(R.id.main_menu_highscores);
@@ -27,6 +33,7 @@ public class MainMenuActivity extends ActionBarActivity {
     lifeButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
+        mButtonSoundPlayer.start();
         MainMenuActivity.this.startActivity(new Intent(MainMenuActivity.this, MainActivity.class));
       }
     });
@@ -35,6 +42,7 @@ public class MainMenuActivity extends ActionBarActivity {
     highscoresButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
+        mButtonSoundPlayer.start();
         MainMenuActivity.this.startActivity(new Intent(MainMenuActivity.this, HighscoresActivity.class));
       }
     });

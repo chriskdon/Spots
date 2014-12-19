@@ -1,6 +1,7 @@
 package ca.brocku.dotscanvas.app;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -18,6 +19,7 @@ public class MainActivity extends ActionBarActivity {
   private TextView mScoreTextView, mMissedTextView;
   private ImageButton mPauseButton;
   private PauseDialog dialog;
+  private MediaPlayer mButtonSoundPlayer;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +36,8 @@ public class MainActivity extends ActionBarActivity {
     mGameSurfaceView.setScoreView(mScoreTextView);
     mGameSurfaceView.setMissedView(mMissedTextView);
 
+    mButtonSoundPlayer = MediaPlayer.create(this, R.raw.button_press);
+
     dialog = new PauseDialog(MainActivity.this);
 
     dialog.setOnResumeClickHandler(new Callback() {
@@ -46,6 +50,7 @@ public class MainActivity extends ActionBarActivity {
     mPauseButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
+        mButtonSoundPlayer.start();
         mPauseButton.setVisibility(View.INVISIBLE);
         showDialogAndPauseGame();
       }
@@ -54,6 +59,7 @@ public class MainActivity extends ActionBarActivity {
     dialog.setOnResumeClickHandler(new Callback() {
       @Override
       public void call() {
+        mButtonSoundPlayer.start();
         mPauseButton.setVisibility(View.VISIBLE);
         hideDialogAndResumeGame();
       }
@@ -62,6 +68,7 @@ public class MainActivity extends ActionBarActivity {
     dialog.setOnRestartClickHandler(new Callback() {
       @Override
       public void call() {
+        mButtonSoundPlayer.start();
         // TODO: Restart
       }
     });
@@ -69,6 +76,7 @@ public class MainActivity extends ActionBarActivity {
     dialog.setOnQuitClickHandler(new Callback() {
       @Override
       public void call() {
+        mButtonSoundPlayer.start();
         // TODO: Go home
       }
     });
@@ -76,6 +84,7 @@ public class MainActivity extends ActionBarActivity {
     dialog.setOnHighscoresClickHandler(new Callback() {
       @Override
       public void call() {
+        mButtonSoundPlayer.start();
         MainActivity.this.startActivity(new Intent(MainActivity.this, HighscoresActivity.class));
       }
     });
