@@ -82,7 +82,9 @@ public class GameThread extends Thread implements Serializable {
   private long mLastSecond; //the last second that calculations for dots to appear were done
 
   private transient SoundPool mSoundPool;
-  private transient int mMissedSoundId, mSelectSoundId, mReleaseSoundId;
+  private transient int mMissedSoundId;
+  private transient int mReleaseSoundId;
+  private transient int[] mSelectSoundIds;
 
   // Game Loop
   private final static int MAX_FPS = 30;                  // Desired fps
@@ -440,7 +442,7 @@ public class GameThread extends Thread implements Serializable {
   private void addDotToChain(Dot dot) {
     mDotChain.push(dot);
     dot.setState(DotState.SELECTED);
-    playSound(mSelectSoundId);
+    playSound(mSelectSoundIds[mDotChain.size()-1]);
   }
 
   private void clearChain() {
@@ -668,7 +670,20 @@ public class GameThread extends Thread implements Serializable {
   private void initializeSoundPool() {
     mSoundPool = new SoundPool(4, AudioManager.STREAM_MUSIC, 0);
     mMissedSoundId = mSoundPool.load(this.mContext, R.raw.miss, 1);
-    mSelectSoundId = mSoundPool.load(this.mContext, R.raw.select, 3);
     mReleaseSoundId = mSoundPool.load(this.mContext, R.raw.release, 2);
+
+    mSelectSoundIds = new int[12];
+    mSelectSoundIds[0] = mSoundPool.load(this.mContext, R.raw.select, 3);
+    mSelectSoundIds[1] = mSoundPool.load(this.mContext, R.raw.select1u, 3);
+    mSelectSoundIds[2] = mSoundPool.load(this.mContext, R.raw.select2u, 3);
+    mSelectSoundIds[3] = mSoundPool.load(this.mContext, R.raw.select3u, 3);
+    mSelectSoundIds[4] = mSoundPool.load(this.mContext, R.raw.select4u, 3);
+    mSelectSoundIds[5] = mSoundPool.load(this.mContext, R.raw.select5u, 3);
+    mSelectSoundIds[6] = mSoundPool.load(this.mContext, R.raw.select6u, 3);
+    mSelectSoundIds[7] = mSoundPool.load(this.mContext, R.raw.select7u, 3);
+    mSelectSoundIds[8] = mSoundPool.load(this.mContext, R.raw.select8u, 3);
+    mSelectSoundIds[9] = mSoundPool.load(this.mContext, R.raw.select9u, 3);
+    mSelectSoundIds[10] = mSoundPool.load(this.mContext, R.raw.select10u, 3);
+    mSelectSoundIds[11] = mSoundPool.load(this.mContext, R.raw.select11u, 3);
   }
 }
