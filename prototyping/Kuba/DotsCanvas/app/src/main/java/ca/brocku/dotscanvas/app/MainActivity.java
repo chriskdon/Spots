@@ -122,6 +122,7 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
   @Override
   public void onGameOver(int score) {
     //TODO: Show Game Over menu
+    //TODO: Save score
   }
 
   public boolean isDialogVisible() {
