@@ -115,7 +115,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
   public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
     Log.e("GameSurfaceView", "#surfaceChanged()");
     holder.setFormat(PixelFormat.RGBA_8888); //sets 32-bit color mode to match the views' colors
-    thread.onSurfaceChange(holder, width, height);
+    thread.onSurfaceChange(holder);
   }
 
   /**
@@ -165,7 +165,6 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     mMissedView.setText(String.valueOf(GameThread.DOTS_TO_MISS));
     initGameThread();
     thread.start();
-    thread.onSurfaceChange(getHolder(), this.getWidth(), this.getHeight());
   }
 
   public GameThread getGameThread() {
