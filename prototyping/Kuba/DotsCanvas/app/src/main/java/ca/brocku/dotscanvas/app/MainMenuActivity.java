@@ -19,7 +19,7 @@ public class MainMenuActivity extends ActionBarActivity {
     setContentView(R.layout.activity_main_menu);
 
     ImageButton lifeButton = (ImageButton) findViewById(R.id.btn_StartLifeGame);
-    Button highscoresButton = (Button) findViewById(R.id.main_menu_highscores);
+    ImageButton highscoresButton = (ImageButton) findViewById(R.id.main_menu_highscores);
 
     dim_overlay = (FrameLayout) findViewById(R.id.dim_overlay);
 
