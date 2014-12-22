@@ -22,6 +22,7 @@ import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import ca.brocku.dotscanvas.app.R;
+import ca.brocku.dotscanvas.app.core.GameOverListener;
 import ca.brocku.dotscanvas.app.engine.Handlers.MissedViewHandler;
 import ca.brocku.dotscanvas.app.engine.Handlers.ScoreViewHandler;
 import ca.brocku.dotscanvas.app.gameboard.Dot;
@@ -192,6 +193,10 @@ public class GameThread extends Thread implements Serializable {
         }
       }
     }
+
+    if (mGameOver.get()) {
+      ((GameOverListener) mContext).onGameOver(mScore);
+    }
   }
 
   /**
@@ -273,7 +278,7 @@ public class GameThread extends Thread implements Serializable {
   }
 
   public boolean isGameOver() {
-      return mGameOver.get();
+    return mGameOver.get();
   }
 
   public boolean isGamePaused() {
