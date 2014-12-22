@@ -107,8 +107,10 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     }
   }
 
+  /**
+   * Tries to delete a game-state file.
+   */
   public void clearState() {
-    //Clear the loaded state
     new File(gameStateFilepath).delete();
   }
 
