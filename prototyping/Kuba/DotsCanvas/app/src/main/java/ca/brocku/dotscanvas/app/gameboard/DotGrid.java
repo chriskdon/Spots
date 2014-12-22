@@ -48,6 +48,15 @@ public class DotGrid implements Iterable<Dot>, Serializable {
     return GRID_LENGTH * dot.getRow() + dot.getCol();
   }
 
+  public void setCoordsForDots(float mPixelsPerDotRegion) {
+    for (Dot dot : this) {
+      dot.setCenterX(
+          (float) ((float) dot.getRow() * mPixelsPerDotRegion + mPixelsPerDotRegion / 2.0));
+      dot.setCenterY(
+          (float) ((float) dot.getCol() * mPixelsPerDotRegion + mPixelsPerDotRegion / 2.0));
+    }
+  }
+
   /**
    * The size of a cluster that is adjacent to the passed, invisible dot is calculated. This dot
    * may be a bridge for disjointed clusters, so one of the adjacent dots are randomly selected.
