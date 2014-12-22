@@ -45,7 +45,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
       gameStateFilepath = mContext.getFilesDir().getPath() + GameThread.GAME_STATE_FILENAME;
 
       //Clear any saved game state
-      clearState();
+      clearSavedState();
     }
   }
 
@@ -69,10 +69,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         thread.onResume();
       }
     } else {
-      thread = new GameThread(surfaceHolder,
-                              mContext,
-                              new ScoreViewHandler(mScoreView),
-                              new MissedViewHandler(mMissedView));
+      initGameThread();
     }
 
     thread.start();
@@ -102,15 +99,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
                             new MissedViewHandler(mMissedView));
       }
 
-      clearState();
+      clearSavedState();
     }
-  }
-
-  /**
-   * Tries to delete a game-state file.
-   */
-  public void clearState() {
-    new File(gameStateFilepath).delete();
   }
 
   /**
@@ -139,17 +129,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
   @Override
   public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
     Log.e("GameSurfaceView", "#surfaceDestroyed()");
-    boolean retry = true;
-    thread.setRunning(false); //tell the thread to shutdown
-    thread.onResume(); //in case the thread is waiting
-    while (retry) {
-      try {
-        thread.join(); //block until it finishes
-        retry = false;
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-    }
+    stopGameThread();
     thread.saveState();
   }
 
@@ -173,6 +153,21 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     }
   }
 
+  public void onQuitGame() {
+    thread.requestGameQuit();
+    stopGameThread();
+  }
+
+  public void onRestartGame() {
+    thread.requestGameQuit();
+    stopGameThread();
+    mScoreView.setText("0");
+    mMissedView.setText(String.valueOf(GameThread.DOTS_TO_MISS));
+    initGameThread();
+    thread.start();
+    thread.onSurfaceChange(getHolder(), this.getWidth(), this.getHeight());
+  }
+
   public GameThread getGameThread() {
     return thread;
   }
@@ -187,5 +182,39 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
   public void setMissedView(TextView missedView) {
     this.mMissedView = missedView;
+  }
+
+  /**
+   * Helper method to initialize a new game thread object. Does not start the game thread.
+   */
+  private void initGameThread() {
+    thread = new GameThread(getHolder(),
+                            mContext,
+                            new ScoreViewHandler(mScoreView),
+                            new MissedViewHandler(mMissedView));
+  }
+
+  /**
+   * Kills the game thread. Blocks until the thread finishes.
+   */
+  private void stopGameThread() {
+    boolean retry = true;
+    thread.setRunning(false); //tell the thread to shutdown
+    thread.onResume(); //in case the thread is waiting
+    while (retry) {
+      try {
+        thread.join(); //block until it finishes
+        retry = false;
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
+  /**
+   * Tries to delete a game-state file.
+   */
+  private void clearSavedState() {
+    new File(gameStateFilepath).delete();
   }
 }

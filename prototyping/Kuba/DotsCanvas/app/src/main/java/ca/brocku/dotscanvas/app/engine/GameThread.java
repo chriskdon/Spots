@@ -40,7 +40,7 @@ public class GameThread extends Thread implements Serializable {
 
   private static final int GRID_LENGTH = 6;
   private static final int NUMBER_OF_DOTS = 36;
-  private static final int DOTS_TO_MISS = 15;
+  public static final int DOTS_TO_MISS = 15;
 
   private static final long DURATION_VISIBILITY_ANIMATION = 100; //time to appear/disappear
   private static final long DURATION_VISIBLE = 2000; //time for which dot stays visible
@@ -285,7 +285,7 @@ public class GameThread extends Thread implements Serializable {
     return mBlock.get();
   }
 
-  public void requestQuit() {
+  public void requestGameQuit() {
     mQuitRequested.getAndSet(true);
   }
 
