@@ -470,7 +470,7 @@ public class GameThread extends Thread implements Serializable {
   }
 
   private void playSound(int soundId) {
-    mSoundPool.play(soundId, 1, 1, 0, 0, 1);
+    mSoundPool.play(soundId, 0.20f, 0.20f, 0, 0, 1);
   }
 
   private void updateState() {
