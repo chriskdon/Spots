@@ -268,7 +268,7 @@ public class GameThread extends Thread implements Serializable {
     }
   }
 
-  public void restoreState(Context mContext, SurfaceHolder holder, ScoreViewHandler scoreViewHandler, MissedViewHandler missedViewHandler) {
+  public void restoreState(SurfaceHolder holder, Context mContext, ScoreViewHandler scoreViewHandler, MissedViewHandler missedViewHandler) {
     Log.e("GameThread", "#restoreState()");
     this.mContext = mContext;
     this.mSurfaceHolder = holder;

@@ -69,8 +69,10 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         thread.onResume();
       }
     } else {
-      thread = new GameThread(surfaceHolder, mContext,
-          new ScoreViewHandler(mScoreView), new MissedViewHandler(mMissedView));
+      thread = new GameThread(surfaceHolder,
+                              mContext,
+                              new ScoreViewHandler(mScoreView),
+                              new MissedViewHandler(mMissedView));
     }
 
     thread.start();
@@ -94,8 +96,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
       }
 
       if (thread != null) {
-        thread.restoreState(mContext,
-                            getHolder(),
+        thread.restoreState(getHolder(),
+                            mContext,
                             new ScoreViewHandler(mScoreView),
                             new MissedViewHandler(mMissedView));
       }
