@@ -22,6 +22,7 @@ import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import ca.brocku.dotscanvas.app.R;
+import ca.brocku.dotscanvas.app.core.GameOverListener;
 import ca.brocku.dotscanvas.app.engine.Handlers.MissedViewHandler;
 import ca.brocku.dotscanvas.app.engine.Handlers.ScoreViewHandler;
 import ca.brocku.dotscanvas.app.gameboard.Dot;
@@ -194,6 +195,10 @@ public class GameThread extends Thread implements Serializable {
         }
       }
     }
+
+    if (mGameOver.get()) {
+      ((GameOverListener) mContext).onGameOver(mScore);
+    }
   }
 
   /**
@@ -275,7 +280,7 @@ public class GameThread extends Thread implements Serializable {
   }
 
   public boolean isGameOver() {
-      return mGameOver.get();
+    return mGameOver.get();
   }
 
   public boolean isGamePaused() {
@@ -304,13 +309,7 @@ public class GameThread extends Thread implements Serializable {
       mPixelsPerDotRegion = mCanvasLength / GRID_LENGTH;
       mDotRadius = mPixelsPerDotRegion * 2.0f / 3.0f / 2;
       mMaxLineLength = (float) (1.5 * mPixelsPerDotRegion);
-
-      for (Dot dot : mDotGrid) {
-        dot.setCenterX(
-            (float) ((float) dot.getRow() * mPixelsPerDotRegion + mPixelsPerDotRegion / 2.0));
-        dot.setCenterY(
-            (float) ((float) dot.getCol() * mPixelsPerDotRegion + mPixelsPerDotRegion / 2.0));
-      }
+      mDotGrid.setCoordsForDots(mPixelsPerDotRegion);
     }
   }
 
@@ -512,6 +511,9 @@ public class GameThread extends Thread implements Serializable {
       }
     }
     if (mGameOver.get()) {
+      if (!mDotChain.isEmpty()) {
+        mDotChain.clear();
+      }
       for (Dot dot : mDotGrid) dot.setState(DotState.INVISIBLE);
     }
     mLastSecond = currentSecond;
@@ -583,6 +585,7 @@ public class GameThread extends Thread implements Serializable {
     paint.setAntiAlias(true);
     paint.setColor(Color.rgb(237, 17, 100));
     paint.setStrokeWidth(15);
+    paint.setStrokeCap(Paint.Cap.ROUND);
 
     //Draw dots
     for (Dot dot : mDotGrid) {

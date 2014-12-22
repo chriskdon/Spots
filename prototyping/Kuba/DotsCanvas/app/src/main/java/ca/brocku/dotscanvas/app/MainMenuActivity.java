@@ -23,6 +23,7 @@ public class MainMenuActivity extends ActionBarActivity {
     setContentView(R.layout.activity_main_menu);
 
     mButtonSoundPlayer = MediaPlayer.create(this, R.raw.button_press);
+    mButtonSoundPlayer.setVolume(.15f, .15f);
 
     ImageButton lifeButton = (ImageButton) findViewById(R.id.btn_StartLifeGame);
     Button highscoresButton = (Button) findViewById(R.id.main_menu_highscores);

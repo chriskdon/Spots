@@ -12,9 +12,10 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import ca.brocku.dotscanvas.app.core.Callback;
+import ca.brocku.dotscanvas.app.core.GameOverListener;
 import ca.brocku.dotscanvas.app.views.PauseDialog;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements GameOverListener {
   private GameSurfaceView mGameSurfaceView;
   private TextView mScoreTextView, mMissedTextView;
   private ImageButton mPauseButton;
@@ -37,21 +38,14 @@ public class MainActivity extends ActionBarActivity {
     mGameSurfaceView.setMissedView(mMissedTextView);
 
     mButtonSoundPlayer = MediaPlayer.create(this, R.raw.button_press);
+    mButtonSoundPlayer.setVolume(.15f, .15f);
 
     dialog = new PauseDialog(MainActivity.this);
-
-    dialog.setOnResumeClickHandler(new Callback() {
-      @Override
-      public void call() {
-        hideDialogAndResumeGame();
-      }
-    });
 
     mPauseButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
         mButtonSoundPlayer.start();
-        mPauseButton.setVisibility(View.INVISIBLE);
         showDialogAndPauseGame();
       }
     });
@@ -60,7 +54,6 @@ public class MainActivity extends ActionBarActivity {
       @Override
       public void call() {
         mButtonSoundPlayer.start();
-        mPauseButton.setVisibility(View.VISIBLE);
         hideDialogAndResumeGame();
       }
     });
@@ -109,9 +102,7 @@ public class MainActivity extends ActionBarActivity {
   protected void onPause() {
     Log.e("MainActivity", "#onPause()");
     super.onPause();
-
-    mGameSurfaceView.onPauseGame(); // pause game when Activity pauses
-    dialog.show();
+    showDialogAndPauseGame();
   }
 
   @Override
@@ -129,12 +120,19 @@ public class MainActivity extends ActionBarActivity {
     }
   }
 
+  @Override
+  public void onGameOver(int score) {
+    //TODO: Show Game Over menu
+  }
+
   public void hideDialogAndResumeGame() {
+    mPauseButton.setVisibility(View.VISIBLE);
     dialog.hide();
     mGameSurfaceView.onResumeGame();
   }
 
   public void showDialogAndPauseGame() {
+    mPauseButton.setVisibility(View.INVISIBLE);
     dialog.show();
     mGameSurfaceView.onPauseGame();
   }
