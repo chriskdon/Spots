@@ -12,30 +12,43 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_centerInParent="true"
         android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp">
+        android:layout_marginRight="40dp"
+        android:layout_marginBottom="300dp">
 
-        <Button
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+        <ImageButton
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:text="Restart"
+            android:scaleType="fitXY"
+            android:background="@null"
             android:id="@+id/button_pause_menu_restart"
+            android:src="@drawable/button_restart"
+            android:layout_marginBottom="20dp"
             />
 
-        <Button
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+        <ImageButton
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:text="Home"
             android:id="@+id/button_pause_menu_home"
+            android:scaleType="fitXY"
+            android:background="@null"
+            android:src="@drawable/button_home"
+            android:layout_marginBottom="20dp"
             />
 
-        <Button
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="Highscores"
+        <ImageButton
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:text="High Scores"
             android:id="@+id/button_pause_menu_highscores"
+            android:scaleType="fitXY"
+            android:background="@null"
+            android:src="@drawable/button_highscore"
             />
     </LinearLayout>
 
