@@ -80,7 +80,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
   public void restoreGameState() {
     synchronized (getHolder()) {
-      FileInputStream fileIn = null;
+      FileInputStream fileIn;
       try {
         fileIn = new FileInputStream(gameStateFilepath);
         ObjectInputStream in = new ObjectInputStream(fileIn);
@@ -101,7 +101,6 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
                             new ScoreViewHandler(mScoreView),
                             new MissedViewHandler(mMissedView));
       }
-
 
       clearState();
     }

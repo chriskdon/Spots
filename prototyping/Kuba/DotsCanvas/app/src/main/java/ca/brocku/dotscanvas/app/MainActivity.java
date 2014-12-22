@@ -115,20 +115,20 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
     //TODO: Show Game Over menu
   }
 
-  public void hideDialogAndResumeGame() {
+  public boolean isDialogVisible() {
+    return dialog.isShowing();
+  }
+
+  private void hideDialogAndResumeGame() {
     mPauseButton.setVisibility(View.VISIBLE);
     dialog.hide();
     mGameSurfaceView.onResumeGame();
   }
 
-  public void showDialogAndPauseGame() {
+  private void showDialogAndPauseGame() {
     mPauseButton.setVisibility(View.INVISIBLE);
     dialog.show();
     mGameSurfaceView.onPauseGame();
-  }
-
-  public boolean isDialogVisible() {
-    return dialog.isShowing();
   }
 }
 
