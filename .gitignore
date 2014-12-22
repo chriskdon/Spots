@@ -1,0 +1,27 @@
+prototyping/Kuba/DotsCanvas/.idea/libraries/
+prototyping/Kuba/DotsCanvas/.idea/codeStyleSettings.xml
+prototyping/Kuba/.idea/workspace.xml
+
+# Built application files
+*.apk
+*.ap_
+
+# Files for the Dalvik VM
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+bin/
+gen/
+
+# Gradle files
+.gradle/
+build/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Log Files
+*.log

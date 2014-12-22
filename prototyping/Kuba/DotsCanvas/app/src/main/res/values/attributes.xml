@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SVGImageView">
+        <attr name="asset_filename" format="string"></attr>
+    </declare-styleable>
+    <declare-styleable name="SVGImageButton">
+        <attr name="normal_asset_filename" format="string"></attr>
+        <attr name="touch_asset_filename" format="string"></attr>
+    </declare-styleable>
+</resources>

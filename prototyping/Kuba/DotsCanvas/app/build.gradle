@@ -1,24 +1,35 @@
 apply plugin: 'android'
 
+
+repositories {
+    maven { url 'repo1.maven.org/maven2' }
+}
+
+
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.2"
+    buildToolsVersion "19.1"
 
     defaultConfig {
         minSdkVersion 10
         targetSdkVersion 19
         versionCode 1
-        versionName "1.0"
+        versionName '1.0'
     }
     buildTypes {
         release {
-            runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+    productFlavors {
+    }
+}
+
+repositories {
+    mavenCentral()
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:+'
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:19.+'
 }

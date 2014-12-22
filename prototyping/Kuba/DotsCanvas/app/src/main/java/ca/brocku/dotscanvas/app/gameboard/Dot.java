@@ -1,6 +1,8 @@
 package ca.brocku.dotscanvas.app.gameboard;
 
-public class Dot {
+import java.io.Serializable;
+
+public class Dot implements Serializable {
     private final int ID;
 
     private int row;
@@ -72,6 +74,10 @@ public class Dot {
 
     public long getStateStartTime() {
         return stateStartTime;
+    }
+
+    public void increaseStateStartTime(long time) {
+        stateStartTime += time;
     }
 
     public long getStateDuration() {
