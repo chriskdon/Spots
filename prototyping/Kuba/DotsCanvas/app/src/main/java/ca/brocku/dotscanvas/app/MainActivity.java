@@ -37,17 +37,9 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
 
     dialog = new PauseDialog(MainActivity.this);
 
-    dialog.setOnResumeClickHandler(new Callback() {
-      @Override
-      public void call() {
-        hideDialogAndResumeGame();
-      }
-    });
-
     mPauseButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        mPauseButton.setVisibility(View.INVISIBLE);
         showDialogAndPauseGame();
       }
     });
@@ -55,7 +47,6 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
     dialog.setOnResumeClickHandler(new Callback() {
       @Override
       public void call() {
-        mPauseButton.setVisibility(View.VISIBLE);
         hideDialogAndResumeGame();
       }
     });
@@ -101,9 +92,7 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
   protected void onPause() {
     Log.e("MainActivity", "#onPause()");
     super.onPause();
-
-    mGameSurfaceView.onPauseGame(); // pause game when Activity pauses
-    dialog.show();
+    showDialogAndPauseGame();
   }
 
   @Override
@@ -127,11 +116,13 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
   }
 
   public void hideDialogAndResumeGame() {
+    mPauseButton.setVisibility(View.VISIBLE);
     dialog.hide();
     mGameSurfaceView.onResumeGame();
   }
 
   public void showDialogAndPauseGame() {
+    mPauseButton.setVisibility(View.INVISIBLE);
     dialog.show();
     mGameSurfaceView.onPauseGame();
   }
