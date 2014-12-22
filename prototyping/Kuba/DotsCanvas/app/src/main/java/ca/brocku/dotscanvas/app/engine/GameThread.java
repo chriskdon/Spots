@@ -285,8 +285,8 @@ public class GameThread extends Thread implements Serializable {
     return mBlock.get();
   }
 
-  public void setQuitRequested(boolean b) {
-    mQuitRequested.getAndSet(b);
+  public void requestQuit() {
+    mQuitRequested.getAndSet(true);
   }
 
   /**

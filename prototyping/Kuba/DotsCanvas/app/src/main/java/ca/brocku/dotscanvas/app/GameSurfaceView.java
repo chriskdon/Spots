@@ -27,6 +27,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
   private TextView mScoreView;
   private TextView mMissedView;
 
+  private static String gameStateFilepath;
+
   public GameSurfaceView(Context context, AttributeSet attrs) {
     super(context, attrs);
 
@@ -39,6 +41,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
       this.setOnTouchListener(this);
 
       mContext = context;
+
+      gameStateFilepath = mContext.getFilesDir().getPath() + GameThread.GAME_STATE_FILENAME;
 
       //Clear any saved game state
       clearState();
@@ -59,7 +63,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
   public void surfaceCreated(SurfaceHolder surfaceHolder) {
     Log.e("GameSurfaceView", "#surfaceCreated()");
 
-    if (new File(mContext.getFilesDir().getPath().toString() + GameThread.GAME_STATE_FILENAME).exists()) {
+    if (new File(gameStateFilepath).exists()) {
       restoreGameState();
       if (!((MainActivity) mContext).isDialogVisible()) {
         thread.onResume();
@@ -76,7 +80,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     synchronized (getHolder()) {
       FileInputStream fileIn = null;
       try {
-        fileIn = new FileInputStream(mContext.getFilesDir().getPath().toString() + GameThread.GAME_STATE_FILENAME);
+        fileIn = new FileInputStream(gameStateFilepath);
         ObjectInputStream in = new ObjectInputStream(fileIn);
         thread = (GameThread) in.readObject();
         in.close();
@@ -103,7 +107,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
   public void clearState() {
     //Clear the loaded state
-    new File(mContext.getFilesDir().getPath().toString() + GameThread.GAME_STATE_FILENAME).delete();
+    new File(gameStateFilepath).delete();
   }
 
   /**
