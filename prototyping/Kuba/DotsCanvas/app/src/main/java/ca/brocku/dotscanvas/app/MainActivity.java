@@ -55,7 +55,7 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
     dialog.setOnRestartClickHandler(new Callback() {
       @Override
       public void call() {
-        hideDialogAndRestartGame(dialog);
+        hideDialogAndRestartGame();
       }
     });
 
@@ -71,6 +71,13 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
       @Override
       public void call() {
         MainActivity.this.startActivity(new Intent(MainActivity.this, HighscoresActivity.class));
+      }
+    });
+
+    dialog.setOnRestartClickHandler(new Callback() {
+      @Override
+      public void call() {
+        hideDialogAndRestartGame();
       }
     });
   }
@@ -141,9 +148,9 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
     mGameSurfaceView.onPauseGame();
   }
 
-  private void hideDialogAndRestartGame(Dialog aDialog) {
+  private void hideDialogAndRestartGame() {
     mPauseButton.setVisibility(View.VISIBLE);
-    aDialog.hide();
+    dialog.hide();
     mGameSurfaceView.onRestartGame();
   }
 }
