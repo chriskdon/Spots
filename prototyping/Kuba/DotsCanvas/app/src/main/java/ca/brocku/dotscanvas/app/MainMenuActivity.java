@@ -31,15 +31,13 @@ public class MainMenuActivity extends ActionBarActivity {
       }
     });
 
-    // Show Highscores
+    // Show High scores
     highscoresButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
         MainMenuActivity.this.startActivity(new Intent(MainMenuActivity.this, HighscoresActivity.class));
       }
     });
-
-
   }
 
   @Override

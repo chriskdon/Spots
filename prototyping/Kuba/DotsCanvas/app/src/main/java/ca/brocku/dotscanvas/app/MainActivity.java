@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import ca.brocku.dotscanvas.app.core.Callback;
@@ -19,6 +20,7 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
   private GameSurfaceView mGameSurfaceView;
   private TextView mScoreTextView, mMissedTextView;
   private ImageButton mPauseButton;
+  private LinearLayout scnLives;
   private PauseDialog dialog;
 
   @Override
@@ -32,6 +34,7 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
     mScoreTextView = (TextView) findViewById(R.id.score_textView);
     mMissedTextView = (TextView) findViewById(R.id.missed_textView);
     mPauseButton = (ImageButton) findViewById(R.id.btn_Pause);
+    scnLives = (LinearLayout) findViewById(R.id.scnLives);
 
     mGameSurfaceView.setScoreView(mScoreTextView);
     mGameSurfaceView.setMissedView(mMissedTextView);
@@ -127,9 +130,29 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
   }
 
   @Override
-  public void onGameOver(int score) {
-    //TODO: Show Game Over menu
+  public void onGameOver(final int score) {
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        dialog.setScore(score);
+        dialog.setEndGameMode(true);
+        mPauseButton.setVisibility(View.INVISIBLE);
+        hideScoreAndLives();
+        dialog.show();
+      }
+    });
+
     //TODO: Save score
+  }
+
+  private void hideScoreAndLives() {
+    mScoreTextView.setVisibility(View.INVISIBLE);
+    scnLives.setVisibility(View.INVISIBLE);
+  }
+
+  private void showScoreAndLives() {
+    mScoreTextView.setVisibility(View.VISIBLE);
+    scnLives.setVisibility(View.VISIBLE);
   }
 
   public boolean isDialogVisible() {
@@ -149,7 +172,9 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
   }
 
   private void hideDialogAndRestartGame() {
+    showScoreAndLives();
     mPauseButton.setVisibility(View.VISIBLE);
+    dialog.setEndGameMode(false);
     dialog.hide();
     mGameSurfaceView.onRestartGame();
   }

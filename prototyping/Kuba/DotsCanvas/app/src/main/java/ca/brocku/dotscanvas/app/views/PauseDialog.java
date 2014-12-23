@@ -5,7 +5,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import ca.brocku.dotscanvas.app.R;
 import ca.brocku.dotscanvas.app.core.Callback;
@@ -17,9 +18,11 @@ import ca.brocku.dotscanvas.app.core.Callback;
  */
 public class PauseDialog extends Dialog {
   private Callback onResumeClickHandler, onQuitClickHandler,
-                   onRestartClickHandler, onHighscoresClickHandler;
+      onRestartClickHandler, onHighscoresClickHandler;
 
   private Context mContext;
+  private TextView lblFinalScore, lblGameOverTitle;
+  private ImageButton btnResume;
 
   /**
    * Create a Dialog window that uses the default dialog frame style.
@@ -36,10 +39,16 @@ public class PauseDialog extends Dialog {
     View view = LayoutInflater.from(context).inflate(R.layout.pause_menu, null);
     setContentView(view);
 
-    view.findViewById(R.id.btn_play).setOnClickListener(new View.OnClickListener() {
+    lblFinalScore = (TextView) view.findViewById(R.id.lblFinalScore);
+    lblGameOverTitle = (TextView) view.findViewById(R.id.lblGameOverTitle);
+    btnResume = (ImageButton) view.findViewById(R.id.btn_play);
+
+    setEndGameMode(false);
+
+    btnResume.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        if(onResumeClickHandler != null) {
+        if (onResumeClickHandler != null) {
           onResumeClickHandler.call();
         }
       }
@@ -48,7 +57,7 @@ public class PauseDialog extends Dialog {
     view.findViewById(R.id.button_pause_menu_restart).setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        if(onRestartClickHandler != null) {
+        if (onRestartClickHandler != null) {
           onRestartClickHandler.call();
         }
       }
@@ -57,7 +66,7 @@ public class PauseDialog extends Dialog {
     view.findViewById(R.id.button_pause_menu_home).setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        if(onQuitClickHandler != null) {
+        if (onQuitClickHandler != null) {
           onQuitClickHandler.call();
         }
       }
@@ -66,11 +75,24 @@ public class PauseDialog extends Dialog {
     view.findViewById(R.id.button_pause_menu_highscores).setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        if(onHighscoresClickHandler != null) {
+        if (onHighscoresClickHandler != null) {
           onHighscoresClickHandler.call();
         }
       }
     });
+  }
+
+  public void setScore(int score) {
+    lblFinalScore.setText(Integer.toString(score));
+  }
+
+  public void setEndGameMode(boolean isEndGame) {
+    int engGameControlsState = isEndGame ? View.VISIBLE : View.INVISIBLE;
+    int resumeButtonState = isEndGame ? View.INVISIBLE : View.VISIBLE;
+
+    lblFinalScore.setVisibility(engGameControlsState);
+    lblGameOverTitle.setVisibility(engGameControlsState);
+    btnResume.setVisibility(resumeButtonState);
   }
 
   public void setOnResumeClickHandler(Callback onResumeClickHandler) {
