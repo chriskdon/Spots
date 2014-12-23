@@ -1,5 +1,6 @@
 package ca.brocku.dotscanvas.app;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -54,14 +55,15 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
     dialog.setOnRestartClickHandler(new Callback() {
       @Override
       public void call() {
-        // TODO: Restart
+        hideDialogAndRestartGame(dialog);
       }
     });
 
     dialog.setOnQuitClickHandler(new Callback() {
       @Override
       public void call() {
-        // TODO: Go home
+        mGameSurfaceView.onQuitGame();
+        finish();
       }
     });
 
@@ -111,24 +113,38 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
   }
 
   @Override
-  public void onGameOver(int score) {
-    //TODO: Show Game Over menu
+  protected void onStop() {
+    Log.e("MainActivity", "#onStop()");
+    dialog.dismiss();
+    super.onStop();
   }
 
-  public void hideDialogAndResumeGame() {
+  @Override
+  public void onGameOver(int score) {
+    //TODO: Show Game Over menu
+    //TODO: Save score
+  }
+
+  public boolean isDialogVisible() {
+    return dialog.isShowing();
+  }
+
+  private void hideDialogAndResumeGame() {
     mPauseButton.setVisibility(View.VISIBLE);
     dialog.hide();
     mGameSurfaceView.onResumeGame();
   }
 
-  public void showDialogAndPauseGame() {
+  private void showDialogAndPauseGame() {
     mPauseButton.setVisibility(View.INVISIBLE);
     dialog.show();
     mGameSurfaceView.onPauseGame();
   }
 
-  public boolean isDialogVisible() {
-    return dialog.isShowing();
+  private void hideDialogAndRestartGame(Dialog aDialog) {
+    mPauseButton.setVisibility(View.VISIBLE);
+    aDialog.hide();
+    mGameSurfaceView.onRestartGame();
   }
 }
 

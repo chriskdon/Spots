@@ -40,7 +40,7 @@ public class GameThread extends Thread implements Serializable {
 
   private static final int GRID_LENGTH = 6;
   private static final int NUMBER_OF_DOTS = 36;
-  private static final int DOTS_TO_MISS = 15;
+  public static final int DOTS_TO_MISS = 15;
 
   private static final long DURATION_VISIBILITY_ANIMATION = 100; //time to appear/disappear
   private static final long DURATION_VISIBLE = 2000; //time for which dot stays visible
@@ -56,12 +56,12 @@ public class GameThread extends Thread implements Serializable {
   private transient ScoreViewHandler mScoreViewHandler;
   private transient MissedViewHandler mMissedViewHandler;
 
-  private int mCanvasHeight = 1;
-  private int mCanvasWidth = 1;
-  private float mCanvasLength = (mCanvasHeight > mCanvasWidth ? mCanvasWidth : mCanvasHeight); //the smaller of the height and width
-  private float mPixelsPerDotRegion = 1;
-  private float mDotRadius = 1;
-  private float mMaxLineLength = 1;
+  private int mCanvasHeight;
+  private int mCanvasWidth;
+  private float mCanvasLength; //the smaller of the height and width
+  private float mPixelsPerDotRegion;
+  private float mDotRadius;
+  private float mMaxLineLength;
 
   private AtomicBoolean mRun;  //whether the surface has been created & is ready to draw
   private AtomicBoolean mBlock; //whether the surface has lost focus
@@ -112,6 +112,8 @@ public class GameThread extends Thread implements Serializable {
 
     mScore = 0;
     mMissedDots = 0;
+
+    setCanvasDimensions();
 
     mTimePausedLast = System.currentTimeMillis();
 
@@ -268,7 +270,7 @@ public class GameThread extends Thread implements Serializable {
     }
   }
 
-  public void restoreState(Context mContext, SurfaceHolder holder, ScoreViewHandler scoreViewHandler, MissedViewHandler missedViewHandler) {
+  public void restoreState(SurfaceHolder holder, Context mContext, ScoreViewHandler scoreViewHandler, MissedViewHandler missedViewHandler) {
     Log.e("GameThread", "#restoreState()");
     this.mContext = mContext;
     this.mSurfaceHolder = holder;
@@ -285,29 +287,20 @@ public class GameThread extends Thread implements Serializable {
     return mBlock.get();
   }
 
-  public void setQuitRequested(boolean b) {
-    mQuitRequested.getAndSet(b);
+  public void requestGameQuit() {
+    mQuitRequested.getAndSet(true);
   }
 
   /**
    * Called when the Surface size changes to store the updated canvas dimensions and related
    * measurements.
    *
-   * @param width  the new width of the the new width of the surface.
-   * @param height the new height of the surface.
    * @see ca.brocku.dotscanvas.app.GameSurfaceView#surfaceChanged
    */
-  public void onSurfaceChange(SurfaceHolder surfaceHolder, int width, int height) {
+  public void onSurfaceChange(SurfaceHolder surfaceHolder) {
     synchronized (mutex) {
       mSurfaceHolder = surfaceHolder;
-      mCanvasHeight = height;
-      mCanvasWidth = width;
-      mCanvasLength = height < width ? height : width;
-
-      mPixelsPerDotRegion = mCanvasLength / GRID_LENGTH;
-      mDotRadius = mPixelsPerDotRegion * 2.0f / 3.0f / 2;
-      mMaxLineLength = (float) (1.5 * mPixelsPerDotRegion);
-      mDotGrid.setCoordsForDots(mPixelsPerDotRegion);
+      setCanvasDimensions();
     }
   }
 
@@ -666,6 +659,17 @@ public class GameThread extends Thread implements Serializable {
       float startY = lastDot.getCenterY();
       canvas.drawLine(startX, startY, mChainingLineX, mChainingLineY, paint);
     }
+  }
+
+  private void setCanvasDimensions() {
+    mCanvasWidth = mSurfaceHolder.getSurfaceFrame().width();
+    mCanvasHeight = mSurfaceHolder.getSurfaceFrame().height();
+    mCanvasLength = mCanvasHeight > mCanvasWidth ? mCanvasWidth : mCanvasHeight;
+
+    mPixelsPerDotRegion = mCanvasLength / GRID_LENGTH;
+    mDotRadius = mPixelsPerDotRegion * 2.0f / 3.0f / 2;
+    mMaxLineLength = (float) (1.5 * mPixelsPerDotRegion);
+    mDotGrid.setCoordsForDots(mPixelsPerDotRegion);
   }
 
   private void initializeSoundPool() {
