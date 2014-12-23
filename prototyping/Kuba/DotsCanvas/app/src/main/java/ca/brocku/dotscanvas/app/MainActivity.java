@@ -2,6 +2,7 @@ package ca.brocku.dotscanvas.app;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -20,6 +21,7 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
   private TextView mScoreTextView, mMissedTextView;
   private ImageButton mPauseButton;
   private PauseDialog dialog;
+  private MediaPlayer mButtonSoundPlayer;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +38,15 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
     mGameSurfaceView.setScoreView(mScoreTextView);
     mGameSurfaceView.setMissedView(mMissedTextView);
 
+    mButtonSoundPlayer = MediaPlayer.create(this, R.raw.button_press);
+    mButtonSoundPlayer.setVolume(.15f, .15f);
+
     dialog = new PauseDialog(MainActivity.this);
 
     mPauseButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
+        mButtonSoundPlayer.start();
         showDialogAndPauseGame();
       }
     });
@@ -48,6 +54,7 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
     dialog.setOnResumeClickHandler(new Callback() {
       @Override
       public void call() {
+        mButtonSoundPlayer.start();
         hideDialogAndResumeGame();
       }
     });
@@ -55,6 +62,7 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
     dialog.setOnRestartClickHandler(new Callback() {
       @Override
       public void call() {
+        mButtonSoundPlayer.start();
         hideDialogAndRestartGame(dialog);
       }
     });
@@ -62,6 +70,7 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
     dialog.setOnQuitClickHandler(new Callback() {
       @Override
       public void call() {
+        mButtonSoundPlayer.start();
         mGameSurfaceView.onQuitGame();
         finish();
       }
@@ -70,6 +79,7 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
     dialog.setOnHighscoresClickHandler(new Callback() {
       @Override
       public void call() {
+        mButtonSoundPlayer.start();
         MainActivity.this.startActivity(new Intent(MainActivity.this, HighscoresActivity.class));
       }
     });
