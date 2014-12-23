@@ -49,8 +49,6 @@ public class MainMenuActivity extends ActionBarActivity {
         MainMenuActivity.this.startActivity(new Intent(MainMenuActivity.this, HighscoresActivity.class));
       }
     });
-
-
   }
 
   @Override
