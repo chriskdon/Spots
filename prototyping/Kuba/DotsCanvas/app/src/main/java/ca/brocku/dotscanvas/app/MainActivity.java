@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import ca.brocku.dotscanvas.app.core.Callback;
 import ca.brocku.dotscanvas.app.core.GameOverListener;
+import ca.brocku.dotscanvas.app.models.HighscoreManager;
 import ca.brocku.dotscanvas.app.views.PauseDialog;
 
 public class MainActivity extends ActionBarActivity implements GameOverListener {
@@ -140,6 +141,9 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
 
   @Override
   public void onGameOver(final int score) {
+    HighscoreManager manager = new HighscoreManager(this);
+    manager.updateScore(score);
+
     runOnUiThread(new Runnable() {
       @Override
       public void run() {
@@ -150,8 +154,6 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
         dialog.show();
       }
     });
-
-    //TODO: Save score
   }
 
   private void hideScoreAndLives() {
