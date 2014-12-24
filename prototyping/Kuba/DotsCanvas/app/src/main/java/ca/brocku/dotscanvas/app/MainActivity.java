@@ -12,6 +12,8 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.File;
+
 import ca.brocku.dotscanvas.app.core.Callback;
 import ca.brocku.dotscanvas.app.core.GameOverListener;
 import ca.brocku.dotscanvas.app.models.HighscoreManager;
@@ -122,6 +124,18 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
       hideDialogAndResumeGame();
     } else {
       showDialogAndPauseGame();
+    }
+  }
+
+  /**
+   * Opens the pause menu in case there is an existing game that can be continued.
+   */
+  @Override
+  protected void onStart() {
+    Log.e("MainActivity", "#onStart()");
+    super.onStart();
+    if (mGameSurfaceView.isExistingGame()) {
+      dialog.show();
     }
   }
 
