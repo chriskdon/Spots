@@ -3,6 +3,7 @@ package ca.brocku.dotscanvas.app;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import ca.brocku.dotscanvas.app.models.HighscoreManager;
@@ -25,7 +26,9 @@ public class HighscoresActivity extends ActionBarActivity {
 
     this.highscoreManager = new HighscoreManager(this);
 
-    this.lbl_Highscores = new TextView[] {
+    Button resetBtn = (Button) findViewById(R.id.btnResetHighScore);
+
+    this.lbl_Highscores = new TextView[]{
         (TextView) findViewById(R.id.lbl_Highscore1),
         (TextView) findViewById(R.id.lbl_Highscore2),
         (TextView) findViewById(R.id.lbl_Highscore3),
@@ -33,7 +36,19 @@ public class HighscoresActivity extends ActionBarActivity {
         (TextView) findViewById(R.id.lbl_Highscore5),
     };
 
-    for(int i = 0; i < MAX_SCORES; i++) {
+    loadLabelScores();
+
+    resetBtn.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        highscoreManager.reset();
+        loadLabelScores();
+      }
+    });
+  }
+
+  private void loadLabelScores() {
+    for (int i = 0; i < MAX_SCORES; i++) {
       setHighscore(i, highscoreManager.getScore(i));
     }
   }

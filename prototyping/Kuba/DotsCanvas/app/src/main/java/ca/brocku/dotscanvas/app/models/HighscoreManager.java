@@ -30,6 +30,12 @@ public class HighscoreManager {
     scores = loadScores();
   }
 
+  public void reset() {
+    for(int i = 0; i < MAX_SCORES; i++) {
+      setScore(i, 0);
+    }
+  }
+
   public void updateScore(int score) {
     for (int i = 0; i < scores.length; i++) {
       if (score > scores[i]) {
