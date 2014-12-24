@@ -120,6 +120,8 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
 
   @Override
   public void onBackPressed() {
+    if (mGameSurfaceView.isGameOver()) return;
+
     if (mGameSurfaceView.isGamePaused()) {
       hideDialogAndResumeGame();
     } else {

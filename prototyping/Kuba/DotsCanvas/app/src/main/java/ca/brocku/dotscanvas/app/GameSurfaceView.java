@@ -169,10 +169,6 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     thread.start();
   }
 
-  public GameThread getGameThread() {
-    return thread;
-  }
-
   public boolean isGamePaused() {
     return thread.isGamePaused();
   }
@@ -189,6 +185,10 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     boolean savedFileExists = new File(gameStateFilepath).exists();
 
     return threadIsRunning || savedFileExists;
+  }
+
+  public boolean isGameOver() {
+    return thread.isGameOver();
   }
 
   public void setScoreView(TextView scoreView) {

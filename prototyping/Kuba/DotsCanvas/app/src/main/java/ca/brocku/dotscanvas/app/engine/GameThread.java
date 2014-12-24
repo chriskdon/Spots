@@ -254,7 +254,7 @@ public class GameThread extends Thread implements Serializable {
   public void saveState() {
     Log.e("GameThread", "#saveState()");
 
-    if (!mGameOver.get() && !mQuitRequested.get()) {
+    if (!mQuitRequested.get()) {
       mBlock.getAndSet(true);
 
       try {
