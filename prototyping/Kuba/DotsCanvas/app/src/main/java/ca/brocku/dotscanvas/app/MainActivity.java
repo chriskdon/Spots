@@ -132,7 +132,7 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
     Log.e("MainActivity", "#onStart()");
     super.onStart();
     if (mGameSurfaceView.isExistingGame()) {
-      showDialogAndPauseGame();
+      dialog.show();
     }
   }
 
