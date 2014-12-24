@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import ca.brocku.dotscanvas.app.GameSurfaceView;
 import ca.brocku.dotscanvas.app.R;
 import ca.brocku.dotscanvas.app.core.GameOverListener;
 import ca.brocku.dotscanvas.app.engine.Handlers.MissedViewHandler;
@@ -33,9 +34,6 @@ import ca.brocku.dotscanvas.app.gameboard.DotState;
  * This is the Thread which draws to the Canvas.
  */
 public class GameThread extends Thread implements Serializable {
-  //Strings used for storing the game state
-  public static final String GAME_STATE_FILENAME = "game-state.ser";
-
   private static final Object mutex = new Object();
 
   private static final int GRID_LENGTH = 6;
@@ -259,7 +257,7 @@ public class GameThread extends Thread implements Serializable {
       mBlock.getAndSet(true);
 
       try {
-        FileOutputStream fileOut = new FileOutputStream(mContext.getFilesDir().getPath().toString() + GAME_STATE_FILENAME);
+        FileOutputStream fileOut = new FileOutputStream(GameSurfaceView.gameStateFilepath);
         ObjectOutputStream out = new ObjectOutputStream(fileOut);
         out.writeObject(this);
         out.close();

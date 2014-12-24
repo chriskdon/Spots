@@ -22,12 +22,14 @@ import ca.brocku.dotscanvas.app.engine.Handlers.ScoreViewHandler;
 
 
 public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener {
+  //Strings used for storing the game state
+  public static final String GAME_STATE_FILENAME = "game-state.ser";
+  public static String gameStateFilepath;
+
   private GameThread thread; //Handles drawing; initialized in surfaceCreated() callback
   private Context mContext;
   private TextView mScoreView;
   private TextView mMissedView;
-
-  private static String gameStateFilepath;
 
   public GameSurfaceView(Context context, AttributeSet attrs) {
     super(context, attrs);
@@ -42,7 +44,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
       mContext = context;
 
-      gameStateFilepath = mContext.getFilesDir().getPath() + GameThread.GAME_STATE_FILENAME;
+      gameStateFilepath = mContext.getFilesDir().getPath() + GAME_STATE_FILENAME;
 
       //Clear any saved game state
       clearSavedState();

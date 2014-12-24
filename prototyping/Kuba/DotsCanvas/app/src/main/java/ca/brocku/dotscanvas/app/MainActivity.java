@@ -12,6 +12,8 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import java.io.File;
+
 import ca.brocku.dotscanvas.app.core.Callback;
 import ca.brocku.dotscanvas.app.core.GameOverListener;
 import ca.brocku.dotscanvas.app.views.PauseDialog;
@@ -118,6 +120,18 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
     if (mGameSurfaceView.isGamePaused()) {
       hideDialogAndResumeGame();
     } else {
+      showDialogAndPauseGame();
+    }
+  }
+
+  /**
+   * Opens the pause menu in case there is a saved state that will be loaded.
+   */
+  @Override
+  protected void onStart() {
+    Log.e("MainActivity", "#onStart()");
+    super.onStart();
+    if (new File(GameSurfaceView.gameStateFilepath).exists()) {
       showDialogAndPauseGame();
     }
   }
