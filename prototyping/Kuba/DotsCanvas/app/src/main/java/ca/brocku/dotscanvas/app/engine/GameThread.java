@@ -140,23 +140,20 @@ public class GameThread extends Thread implements Serializable {
       synchronized (mutex) {
         while (mBlock.get()) {
           try {
-            Log.e("Bout ta block", "");
             mutex.wait();
           } catch (InterruptedException e) {}
         }
       }
-      Log.e("TICK", String.valueOf(mTimeLastRunning));
+
       Canvas c = null;
       try {
         c = mSurfaceHolder.lockCanvas();
         synchronized (mutex) {
           beginTime = System.currentTimeMillis();
           framesSkipped = 0;    // resetting the frames skipped
-          Log.e("Updating State", "");
           updateState();
 
           if (c != null) {
-            Log.e("Drawlingg", "");
             doDraw(c);
           }
 
