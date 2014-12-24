@@ -27,6 +27,7 @@ public class MainMenuActivity extends ActionBarActivity {
 
     ImageButton lifeButton = (ImageButton) findViewById(R.id.btn_StartLifeGame);
     Button highscoresButton = (Button) findViewById(R.id.main_menu_highscores);
+    ImageButton infoButton = (ImageButton) findViewById(R.id.btnInfoScreen);
 
     dim_overlay = (FrameLayout) findViewById(R.id.dim_overlay);
 
@@ -48,7 +49,12 @@ public class MainMenuActivity extends ActionBarActivity {
       }
     });
 
-
+    infoButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        MainMenuActivity.this.startActivity(new Intent(MainMenuActivity.this, InformationActivity.class));
+      }
+    });
   }
 
   @Override
