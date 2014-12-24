@@ -139,6 +139,7 @@ public class GameThread extends Thread implements Serializable {
       //Wait this thread when the Activity onPauses
       synchronized (mutex) {
         while (mBlock.get()) {
+          hideBoard();
           try {
             mutex.wait();
           } catch (InterruptedException e) {}
@@ -658,6 +659,17 @@ public class GameThread extends Thread implements Serializable {
       float startX = lastDot.getCenterX();
       float startY = lastDot.getCenterY();
       canvas.drawLine(startX, startY, mChainingLineX, mChainingLineY, paint);
+    }
+  }
+
+  /**
+   * Clears the screen.
+   */
+  private void hideBoard() {
+    Canvas c = mSurfaceHolder.lockCanvas();
+    if(c != null) {
+      c.drawColor(mContext.getResources().getColor(R.color.background));
+      mSurfaceHolder.unlockCanvasAndPost(c);
     }
   }
 
