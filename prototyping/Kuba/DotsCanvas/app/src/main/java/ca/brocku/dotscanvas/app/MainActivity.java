@@ -1,6 +1,5 @@
 package ca.brocku.dotscanvas.app;
 
-import android.app.Dialog;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -63,7 +62,7 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
       @Override
       public void call() {
         mButtonSoundPlayer.start();
-        hideDialogAndRestartGame(dialog);
+        hideDialogAndRestartGame();
       }
     });
 
@@ -81,6 +80,13 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
       public void call() {
         mButtonSoundPlayer.start();
         MainActivity.this.startActivity(new Intent(MainActivity.this, HighscoresActivity.class));
+      }
+    });
+
+    dialog.setOnRestartClickHandler(new Callback() {
+      @Override
+      public void call() {
+        hideDialogAndRestartGame();
       }
     });
   }
@@ -151,9 +157,9 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
     mGameSurfaceView.onPauseGame();
   }
 
-  private void hideDialogAndRestartGame(Dialog aDialog) {
+  private void hideDialogAndRestartGame() {
     mPauseButton.setVisibility(View.VISIBLE);
-    aDialog.hide();
+    dialog.hide();
     mGameSurfaceView.onRestartGame();
   }
 }

@@ -14,6 +14,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
 public class MainMenuActivity extends ActionBarActivity {
+  private static final float VOLUME = 0.15f;
+
   private FrameLayout dim_overlay;
   private MediaPlayer mButtonSoundPlayer;
 
@@ -23,7 +25,7 @@ public class MainMenuActivity extends ActionBarActivity {
     setContentView(R.layout.activity_main_menu);
 
     mButtonSoundPlayer = MediaPlayer.create(this, R.raw.button_press);
-    mButtonSoundPlayer.setVolume(.15f, .15f);
+    mButtonSoundPlayer.setVolume(VOLUME, VOLUME);
 
     ImageButton lifeButton = (ImageButton) findViewById(R.id.btn_StartLifeGame);
     ImageButton highscoresButton = (ImageButton) findViewById(R.id.main_menu_highscores);
@@ -39,7 +41,7 @@ public class MainMenuActivity extends ActionBarActivity {
       }
     });
 
-    // Show Highscores
+    // Show High scores
     highscoresButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
