@@ -177,6 +177,20 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     return thread.isGamePaused();
   }
 
+  /**
+   * Determines whether there is a game that is existing. An existing game is one that can be
+   * continued. Specifically, a game is considered existing if there is a saved game-state file or
+   * if a game thread is running.
+   *
+   * @return whether or not there is a game that may be continued
+   */
+  public boolean isExistingGame() {
+    boolean threadIsRunning = thread != null && thread.isAlive();
+    boolean savedFileExists = new File(gameStateFilepath).exists();
+
+    return threadIsRunning || savedFileExists;
+  }
+
   public void setScoreView(TextView scoreView) {
     this.mScoreView = scoreView;
   }

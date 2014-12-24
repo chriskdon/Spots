@@ -125,13 +125,13 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
   }
 
   /**
-   * Opens the pause menu in case there is a saved state that will be loaded.
+   * Opens the pause menu in case there is an existing game that can be continued.
    */
   @Override
   protected void onStart() {
     Log.e("MainActivity", "#onStart()");
     super.onStart();
-    if (new File(GameSurfaceView.gameStateFilepath).exists()) {
+    if (mGameSurfaceView.isExistingGame()) {
       showDialogAndPauseGame();
     }
   }
