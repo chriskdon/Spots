@@ -87,11 +87,11 @@ public class PauseDialog extends Dialog {
   }
 
   public void setEndGameMode(boolean isEndGame) {
-    int engGameControlsState = isEndGame ? View.VISIBLE : View.INVISIBLE;
+    int endGameControlsState = isEndGame ? View.VISIBLE : View.INVISIBLE;
     int resumeButtonState = isEndGame ? View.INVISIBLE : View.VISIBLE;
 
-    lblFinalScore.setVisibility(engGameControlsState);
-    lblGameOverTitle.setVisibility(engGameControlsState);
+    lblFinalScore.setVisibility(endGameControlsState);
+    lblGameOverTitle.setVisibility(endGameControlsState);
     btnResume.setVisibility(resumeButtonState);
   }
 
