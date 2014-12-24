@@ -1,6 +1,5 @@
 package ca.brocku.dotscanvas.app;
 
-import android.app.Dialog;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -10,16 +9,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import ca.brocku.dotscanvas.app.core.Callback;
 import ca.brocku.dotscanvas.app.core.GameOverListener;
+import ca.brocku.dotscanvas.app.models.HighscoreManager;
 import ca.brocku.dotscanvas.app.views.PauseDialog;
 
 public class MainActivity extends ActionBarActivity implements GameOverListener {
   private GameSurfaceView mGameSurfaceView;
   private TextView mScoreTextView, mMissedTextView;
   private ImageButton mPauseButton;
+  private LinearLayout scnLives;
   private PauseDialog dialog;
   private MediaPlayer mButtonSoundPlayer;
 
@@ -34,6 +36,7 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
     mScoreTextView = (TextView) findViewById(R.id.score_textView);
     mMissedTextView = (TextView) findViewById(R.id.missed_textView);
     mPauseButton = (ImageButton) findViewById(R.id.btn_Pause);
+    scnLives = (LinearLayout) findViewById(R.id.scnLives);
 
     mGameSurfaceView.setScoreView(mScoreTextView);
     mGameSurfaceView.setMissedView(mMissedTextView);
@@ -63,7 +66,7 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
       @Override
       public void call() {
         mButtonSoundPlayer.start();
-        hideDialogAndRestartGame(dialog);
+        hideDialogAndRestartGame();
       }
     });
 
@@ -130,9 +133,30 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
   }
 
   @Override
-  public void onGameOver(int score) {
-    //TODO: Show Game Over menu
-    //TODO: Save score
+  public void onGameOver(final int score) {
+    HighscoreManager manager = new HighscoreManager(this);
+    manager.updateScore(score);
+
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        dialog.setScore(score);
+        dialog.setEndGameMode(true);
+        mPauseButton.setVisibility(View.INVISIBLE);
+        hideScoreAndLives();
+        dialog.show();
+      }
+    });
+  }
+
+  private void hideScoreAndLives() {
+    mScoreTextView.setVisibility(View.INVISIBLE);
+    scnLives.setVisibility(View.INVISIBLE);
+  }
+
+  private void showScoreAndLives() {
+    mScoreTextView.setVisibility(View.VISIBLE);
+    scnLives.setVisibility(View.VISIBLE);
   }
 
   public boolean isDialogVisible() {
@@ -151,9 +175,11 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
     mGameSurfaceView.onPauseGame();
   }
 
-  private void hideDialogAndRestartGame(Dialog aDialog) {
+  private void hideDialogAndRestartGame() {
+    showScoreAndLives();
     mPauseButton.setVisibility(View.VISIBLE);
-    aDialog.hide();
+    dialog.setEndGameMode(false);
+    dialog.hide();
     mGameSurfaceView.onRestartGame();
   }
 }

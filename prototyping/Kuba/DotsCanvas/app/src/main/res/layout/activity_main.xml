@@ -1,11 +1,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/background"
-    android:gravity="center_horizontal"
-    android:orientation="vertical"
-    tools:context="ca.brocku.dotscanvas.app.MainActivity">
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/background"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                tools:context="ca.brocku.dotscanvas.app.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,19 +18,39 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0"
-            android:textColor="@color/text" />
+            android:textSize="50dp"
+            android:layout_marginBottom="10dp"
+            android:textColor="@color/text"/>
 
-        <TextView
-            android:id="@+id/missed_textView"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/scnLives"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="15"
-            android:textColor="@color/text" />
+            android:gravity="center"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/life_icon"
+                android:layout_marginRight="5dp"
+                />
+
+            <TextView
+                android:id="@+id/missed_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:text="15"
+                android:textColor="@color/text"/>
+
+        </LinearLayout>
 
         <ca.brocku.dotscanvas.app.GameSurfaceView
             android:id="@+id/game_surfaceView"
             android:layout_width="320dp"
-            android:layout_height="320dp" />
+            android:layout_height="320dp"/>
     </LinearLayout>
 
     <ImageButton
