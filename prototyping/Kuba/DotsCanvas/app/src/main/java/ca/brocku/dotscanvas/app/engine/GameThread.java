@@ -76,7 +76,7 @@ public class GameThread extends Thread implements Serializable {
   private int mScore;
   private int mMissedDots;
 
-  private long mTimePausedLast;
+  private long mTimeLastRunning;
 
   private long mLastSecond; //the last second that calculations for dots to appear were done
 
@@ -115,7 +115,7 @@ public class GameThread extends Thread implements Serializable {
 
     setCanvasDimensions();
 
-    mTimePausedLast = System.currentTimeMillis();
+    mTimeLastRunning = System.currentTimeMillis();
 
     mLastSecond = System.currentTimeMillis() / 1000;
 
@@ -136,17 +136,27 @@ public class GameThread extends Thread implements Serializable {
     int framesSkipped;    // number of frames being skipped
 
     while (mRun.get()) {
-
+      //Wait this thread when the Activity onPauses
+      synchronized (mutex) {
+        while (mBlock.get()) {
+          try {
+            Log.e("Bout ta block", "");
+            mutex.wait();
+          } catch (InterruptedException e) {}
+        }
+      }
+      Log.e("TICK", String.valueOf(mTimeLastRunning));
       Canvas c = null;
       try {
         c = mSurfaceHolder.lockCanvas();
         synchronized (mutex) {
           beginTime = System.currentTimeMillis();
           framesSkipped = 0;    // resetting the frames skipped
-
+          Log.e("Updating State", "");
           updateState();
 
           if (c != null) {
+            Log.e("Drawlingg", "");
             doDraw(c);
           }
 
@@ -183,17 +193,6 @@ public class GameThread extends Thread implements Serializable {
           mSurfaceHolder.unlockCanvasAndPost(c);
         }
       }
-
-      //Wait this thread when the Activity onPauses
-      synchronized (mutex) {
-        while (mBlock.get()) {
-          try {
-            mutex.wait();
-          } catch (InterruptedException e) {
-          }
-
-        }
-      }
     }
 
     if (mGameOver.get()) {
@@ -228,10 +227,14 @@ public class GameThread extends Thread implements Serializable {
 
   /**
    * Requests this thread to wait.
+   *
+   * Updates the last time the thread was running if it is going into a blocked state from an
+   * unblocked state. Do not update the last time at which the thread was last running if it was
+   * already blocked.
    */
   public void onPause() {
-    mBlock.getAndSet(true);
-    mTimePausedLast = System.currentTimeMillis();
+    if (!mBlock.getAndSet(true))
+      mTimeLastRunning = System.currentTimeMillis();
   }
 
   /**
@@ -244,7 +247,7 @@ public class GameThread extends Thread implements Serializable {
     }
 
     //Update each visible dot with the time we were paused for
-    long timePaused = System.currentTimeMillis() - mTimePausedLast;
+    long timePaused = System.currentTimeMillis() - mTimeLastRunning;
     for (Dot dot : mDotGrid) {
       if (dot.isVisible()) dot.increaseStateStartTime(timePaused);
     }
