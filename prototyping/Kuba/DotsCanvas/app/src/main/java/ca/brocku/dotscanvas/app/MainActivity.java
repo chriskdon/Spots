@@ -86,13 +86,6 @@ public class MainActivity extends ActionBarActivity implements GameOverListener 
         MainActivity.this.startActivity(new Intent(MainActivity.this, HighscoresActivity.class));
       }
     });
-
-    dialog.setOnRestartClickHandler(new Callback() {
-      @Override
-      public void call() {
-        hideDialogAndRestartGame();
-      }
-    });
   }
 
   @Override
