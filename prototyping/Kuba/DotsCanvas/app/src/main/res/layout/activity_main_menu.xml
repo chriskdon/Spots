@@ -42,13 +42,17 @@
             android:layout_gravity="center"
             android:layout_marginBottom="60dp"
             android:background="@null"
-            android:src="@drawable/button_life_game" />
+            android:src="@drawable/button_big_play" />
 
-        <Button
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="Highscores"
-            android:id="@+id/main_menu_highscores"/>
+        <ImageButton
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:text="High Scores"
+            android:id="@+id/main_menu_highscores"
+            android:scaleType="fitXY"
+            android:layout_gravity="center"
+            android:background="@null"
+            android:src="@drawable/button_highscore" />
 
     </LinearLayout>
 
@@ -61,4 +65,13 @@
         android:visibility="invisible">
     </FrameLayout>
 
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/info_button"
+        android:layout_gravity="bottom|center"
+        android:background="@null"
+        android:layout_marginBottom="20dp"
+        android:id="@+id/btnInfoScreen"
+        />
 </FrameLayout>
