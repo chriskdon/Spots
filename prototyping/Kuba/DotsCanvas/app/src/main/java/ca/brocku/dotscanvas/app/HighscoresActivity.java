@@ -1,10 +1,13 @@
 package ca.brocku.dotscanvas.app;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import ca.brocku.dotscanvas.app.models.HighscoreManager;
 
@@ -41,8 +44,18 @@ public class HighscoresActivity extends ActionBarActivity {
     resetBtn.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        highscoreManager.reset();
-        loadLabelScores();
+        new AlertDialog.Builder(HighscoresActivity.this)
+            .setTitle("Reset High Scores")
+            .setMessage("Do you really want to reset all your high scores?")
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+              public void onClick(DialogInterface dialog, int whichButton) {
+                highscoreManager.reset();
+                loadLabelScores();
+                Toast.makeText(HighscoresActivity.this, "Success", Toast.LENGTH_SHORT).show();
+              }
+            })
+            .setNegativeButton(android.R.string.no, null).show();
       }
     });
   }
