@@ -8,6 +8,33 @@
     android:layout_width="fill_parent">
 
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_centerHorizontal="true">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Game Over"
+            android:id="@+id/lblGameOverTitle"
+            android:textAlignment="center"
+            android:textColor="@color/text"
+            android:textSize="50dp"
+            android:gravity="center"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="40dp"
+            android:text="0"
+            android:gravity="center"
+            android:id="@+id/lblFinalScore"
+            android:textColor="@color/text"/>
+        </LinearLayout>
+
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -17,7 +44,7 @@
         android:layout_centerInParent="true"
         android:layout_marginLeft="40dp"
         android:layout_marginRight="40dp"
-        android:layout_marginBottom="300dp">
+        android:layout_marginBottom="200dp">
 
         <ImageButton
             android:layout_width="80dp"

@@ -17,7 +17,7 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="30dp"
         android:orientation="vertical"
         android:layout_gravity="center">
 
@@ -38,9 +38,9 @@
             android:layout_height="wrap_content"
             android:text="258"
             android:textSize="70dp"
-            android:textColor="#ecf0f1"
+            android:textColor="#95a5a6"
             android:gravity="center"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="8dp"
             android:visibility="invisible"
             />
 
@@ -52,7 +52,7 @@
             android:textSize="60dp"
             android:textColor="#e67e22"
             android:gravity="center"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="8dp"
             android:visibility="invisible"
             />
 
@@ -62,9 +62,9 @@
             android:layout_height="wrap_content"
             android:text="100"
             android:textSize="50dp"
-            android:textColor="#95a5a6"
+            android:textColor="#E8E8E8"
             android:gravity="center"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="8dp"
             android:visibility="invisible"
             />
 
@@ -74,9 +74,9 @@
             android:layout_height="wrap_content"
             android:text="0"
             android:textSize="40dp"
-            android:textColor="#95a5a6"
+            android:textColor="#E8E8E8"
             android:gravity="center"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="8dp"
             android:visibility="invisible"
             />
     </LinearLayout>
