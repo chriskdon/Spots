@@ -49,6 +49,8 @@ public class GameThread extends Thread implements Serializable {
   private static final double SEED_PROB_WEIGHT = 0.5;
   private static final double ADJACENT_PROB_WEIGHT = 1 - SEED_PROB_WEIGHT;
 
+  private AtomicBoolean mStaleGame; //whether the game has completely finished (including callback events)
+
   private transient SurfaceHolder mSurfaceHolder;
   private transient Context mContext;
   private transient ScoreViewHandler mScoreViewHandler;
@@ -97,6 +99,8 @@ public class GameThread extends Thread implements Serializable {
     mScoreViewHandler = scoreViewHandler;
     mMissedViewHandler = missedViewHandler;
 
+    mStaleGame = new AtomicBoolean(false);
+
     mRun = new AtomicBoolean(false);
     mBlock = new AtomicBoolean(false);
 
@@ -130,6 +134,11 @@ public class GameThread extends Thread implements Serializable {
 
   @Override
   public void run() {
+    if (mStaleGame.get()) {
+      hideBoard();
+      return;
+    }
+
     long beginTime;        // the time when the cycle begun
     long timeDiff;        // the time it took for the cycle to execute
     int sleepTime;        // ms to sleep (<0 if we're behind)
@@ -195,6 +204,7 @@ public class GameThread extends Thread implements Serializable {
 
     if (mGameOver.get()) {
       ((GameOverListener) mContext).onGameOver(mScore);
+      mStaleGame.set(true);
     }
   }
 
