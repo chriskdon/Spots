@@ -1,4 +1,4 @@
-package ca.brocku.dotscanvas.app;
+package dev.spots.app;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -9,7 +9,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import ca.brocku.dotscanvas.app.models.HighscoreManager;
+import dev.spots.app.models.HighscoreManager;
 
 /**
  * Author: Chris Kellendonk

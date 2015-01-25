@@ -1,4 +1,4 @@
-package ca.brocku.dotscanvas.app.gameboard;
+package dev.spots.app.gameboard;
 
 import java.io.Serializable;
 import java.util.ArrayList;

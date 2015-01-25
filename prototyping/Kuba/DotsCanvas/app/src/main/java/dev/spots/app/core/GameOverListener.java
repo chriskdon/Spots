@@ -1,4 +1,4 @@
-package ca.brocku.dotscanvas.app.core;
+package dev.spots.app.core;
 
 /**
  * @author Jakub Subczynski

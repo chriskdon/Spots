@@ -1,4 +1,4 @@
-package ca.brocku.dotscanvas.app;
+package dev.spots.app;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;

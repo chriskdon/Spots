@@ -1,4 +1,4 @@
-package ca.brocku.dotscanvas.app.views;
+package dev.spots.app.views;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -8,8 +8,8 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import ca.brocku.dotscanvas.app.R;
-import ca.brocku.dotscanvas.app.core.Callback;
+import dev.spots.app.R;
+import dev.spots.app.core.Callback;
 
 /**
  * Author: Chris Kellendonk

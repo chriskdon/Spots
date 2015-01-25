@@ -1,4 +1,4 @@
-package ca.brocku.dotscanvas.app.utils;
+package dev.spots.app.utils;
 
 import android.content.Context;
 import android.provider.Settings;

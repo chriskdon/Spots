@@ -1,4 +1,4 @@
-package ca.brocku.dotscanvas.app;
+package dev.spots.app;
 
 import android.content.Context;
 import android.graphics.PixelFormat;
@@ -16,9 +16,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
-import ca.brocku.dotscanvas.app.engine.GameThread;
-import ca.brocku.dotscanvas.app.engine.Handlers.MissedViewHandler;
-import ca.brocku.dotscanvas.app.engine.Handlers.ScoreViewHandler;
+import dev.spots.app.engine.GameThread;
+import dev.spots.app.engine.Handlers.MissedViewHandler;
+import dev.spots.app.engine.Handlers.ScoreViewHandler;
 
 
 public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener {

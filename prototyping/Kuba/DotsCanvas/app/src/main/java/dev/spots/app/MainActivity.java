@@ -1,4 +1,4 @@
-package ca.brocku.dotscanvas.app;
+package dev.spots.app;
 
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -12,12 +12,10 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.io.File;
-
-import ca.brocku.dotscanvas.app.core.Callback;
-import ca.brocku.dotscanvas.app.core.GameOverListener;
-import ca.brocku.dotscanvas.app.models.HighscoreManager;
-import ca.brocku.dotscanvas.app.views.PauseDialog;
+import dev.spots.app.core.Callback;
+import dev.spots.app.core.GameOverListener;
+import dev.spots.app.models.HighscoreManager;
+import dev.spots.app.views.PauseDialog;
 
 public class MainActivity extends ActionBarActivity implements GameOverListener {
   private GameSurfaceView mGameSurfaceView;

@@ -1,4 +1,4 @@
-package ca.brocku.dotscanvas.app.engine;
+package dev.spots.app.engine;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -21,14 +21,14 @@ import java.util.Iterator;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import ca.brocku.dotscanvas.app.GameSurfaceView;
-import ca.brocku.dotscanvas.app.R;
-import ca.brocku.dotscanvas.app.core.GameOverListener;
-import ca.brocku.dotscanvas.app.engine.Handlers.MissedViewHandler;
-import ca.brocku.dotscanvas.app.engine.Handlers.ScoreViewHandler;
-import ca.brocku.dotscanvas.app.gameboard.Dot;
-import ca.brocku.dotscanvas.app.gameboard.DotGrid;
-import ca.brocku.dotscanvas.app.gameboard.DotState;
+import dev.spots.app.GameSurfaceView;
+import dev.spots.app.R;
+import dev.spots.app.core.GameOverListener;
+import dev.spots.app.engine.Handlers.MissedViewHandler;
+import dev.spots.app.engine.Handlers.ScoreViewHandler;
+import dev.spots.app.gameboard.Dot;
+import dev.spots.app.gameboard.DotGrid;
+import dev.spots.app.gameboard.DotState;
 
 /**
  * This is the Thread which draws to the Canvas.
@@ -306,7 +306,7 @@ public class GameThread extends Thread implements Serializable {
    * Called when the Surface size changes to store the updated canvas dimensions and related
    * measurements.
    *
-   * @see ca.brocku.dotscanvas.app.GameSurfaceView#surfaceChanged
+   * @see dev.spots.app.GameSurfaceView#surfaceChanged
    */
   public void onSurfaceChange(SurfaceHolder surfaceHolder) {
     synchronized (mutex) {

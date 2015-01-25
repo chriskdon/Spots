@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="@color/background"
     android:orientation="vertical"
-    tools:context="ca.brocku.dotscanvas.app.MainMenuActivity">
+    tools:context="dev.spots.app.MainMenuActivity">
 
     <!-- Main content -->
     <LinearLayout

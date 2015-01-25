@@ -1,13 +1,12 @@
-package ca.brocku.dotscanvas.app.models;
+package dev.spots.app.models;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import java.util.Arrays;
 
-import ca.brocku.dotscanvas.app.HighscoresActivity;
-import ca.brocku.dotscanvas.app.utils.DeviceBasedEncryptor;
+import dev.spots.app.HighscoresActivity;
+import dev.spots.app.utils.DeviceBasedEncryptor;
 
 public class HighscoreManager {
   private static final int MAX_SCORES = HighscoresActivity.MAX_SCORES;
