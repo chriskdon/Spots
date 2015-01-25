@@ -49,6 +49,8 @@ public class GameThread extends Thread implements Serializable {
   private static final double SEED_PROB_WEIGHT = 0.5;
   private static final double ADJACENT_PROB_WEIGHT = 1 - SEED_PROB_WEIGHT;
 
+  private AtomicBoolean mStaleGame; //whether the game has completely finished (including callback events)
+
   private transient SurfaceHolder mSurfaceHolder;
   private transient Context mContext;
   private transient ScoreViewHandler mScoreViewHandler;
@@ -97,6 +99,8 @@ public class GameThread extends Thread implements Serializable {
     mScoreViewHandler = scoreViewHandler;
     mMissedViewHandler = missedViewHandler;
 
+    mStaleGame = new AtomicBoolean(false);
+
     mRun = new AtomicBoolean(false);
     mBlock = new AtomicBoolean(false);
 
@@ -130,6 +134,11 @@ public class GameThread extends Thread implements Serializable {
 
   @Override
   public void run() {
+    if (mStaleGame.get()) {
+      hideBoard();
+      return;
+    }
+
     long beginTime;        // the time when the cycle begun
     long timeDiff;        // the time it took for the cycle to execute
     int sleepTime;        // ms to sleep (<0 if we're behind)
@@ -195,6 +204,7 @@ public class GameThread extends Thread implements Serializable {
 
     if (mGameOver.get()) {
       ((GameOverListener) mContext).onGameOver(mScore);
+      mStaleGame.set(true);
     }
   }
 
@@ -206,7 +216,7 @@ public class GameThread extends Thread implements Serializable {
    * @param b whether the thread should continue running
    */
   public void setRunning(boolean b) {
-    mRun.getAndSet(b);
+    mRun.set(b);
   }
 
   /**
@@ -239,7 +249,7 @@ public class GameThread extends Thread implements Serializable {
    * Requests this thread to continue.
    */
   public void onResume() {
-    mBlock.getAndSet(false);
+    mBlock.set(false);
     synchronized (mutex) {
       mutex.notifyAll();
     }
@@ -255,7 +265,7 @@ public class GameThread extends Thread implements Serializable {
     Log.e("GameThread", "#saveState()");
 
     if (!mQuitRequested.get()) {
-      mBlock.getAndSet(true);
+      mBlock.set(true);
 
       try {
         FileOutputStream fileOut = new FileOutputStream(GameSurfaceView.gameStateFilepath);
@@ -289,7 +299,7 @@ public class GameThread extends Thread implements Serializable {
   }
 
   public void requestGameQuit() {
-    mQuitRequested.getAndSet(true);
+    mQuitRequested.set(true);
   }
 
   /**
@@ -469,8 +479,8 @@ public class GameThread extends Thread implements Serializable {
 
     for (Dot dot : mDotGrid) {
       if (mMissedDots >= DOTS_TO_MISS) {
-        mRun.getAndSet(false);
-        mGameOver.getAndSet(true);
+        mRun.set(false);
+        mGameOver.set(true);
         break;
       }
       long stateDuration = dot.getStateDuration();
