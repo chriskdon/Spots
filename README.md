@@ -1,4 +1,4 @@
-~~DotClear~~ SPOTS
+SPOTS
 ========
 
 Summer Android Game
