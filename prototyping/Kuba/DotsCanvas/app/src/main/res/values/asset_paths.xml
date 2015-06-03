@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="svg_pause_normal">pause-01.svg</string>
+    <string name="svg_pause_touch">pause-02.svg</string>
+
+    <string name="svg_play_normal">play-01.svg</string>
+    <string name="svg_play_touch">play-02.svg</string>
+
+    <string name="svg_title_path">SPOTS_Title.svg</string>
+
+    <string name="svg_timedButton_normal_path">TimedButton_Normal.svg</string>
+    <string name="svg_timedButton_touched_path">TimedButton_Touch.svg</string>
+
+    <string name="svg_lifeButton_normal_path">LifeButton_Normal.svg</string>
+    <string name="svg_lifeButton_touched_path">LifeButton_Touch.svg</string>
+
+    <string name="svg_settingsButton_normal_path">SettingsButton_Normal.svg</string>
+    <string name="svg_settingsButton_touched_path">SettingsButton_Touch.svg</string>
+</resources>
